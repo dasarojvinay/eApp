@@ -1,5 +1,3 @@
-<%@page import="com.rknowsys.eapp.hrm.service.TerminationReasonsLocalServiceUtil"%>
-<%@page import="com.rknowsys.eapp.hrm.model.TerminationReasons"%>
 <%@ include file="/html/terminationreasons/init.jsp" %>
 <portlet:actionURL var="updateterminationreasons" name="updateTerminationReasons">
 </portlet:actionURL>
@@ -11,6 +9,9 @@
 .table-first-header{
 width: 10%;
 }
+ #editTerminationReasonMessage{
+ color: red;
+}
 .table-last-header{
 width: 15%;
 }
@@ -19,78 +20,19 @@ border-radius: 4px;
 }
 </style>
 <aui:script>
-AUI().use(
-  'aui-node',
-  function(A) {
-    var node = A.one('#delete');
-    node.on(
-      'click',
-      function() {
-     var idArray = [];
-      A.all('input[type=checkbox]:checked').each(function(object) {
-      idArray.push(object.get("value"));
-    
-        });
-       if(idArray==""){
-			  alert("Please select records!");
-		  }else{
-			  var d = confirm("Are you sure you want to delete the selected TerminationReasons?");
-		  if(d){
-		   var url = '<%=deleteterminationreasons%>';
-          A.io.request(url,
-         {
-          data: {  
-                <portlet:namespace />terminationreasonsIds: idArray,  
-                 },
-          on: {
-               success: function() { 
-                   alert('deleted successfully');
-                   window.location='<%=listview%>';
-              },
-               failure: function() {
-                  
-                 }
-                }
-                 }
-                );
-		  																		
-		  console.log(idArray);
-	  
-      return true;
-  }
-  else
-    return false;
-}             
-      }
-    );
-  }
-);
-</aui:script><aui:script>
-AUI().use(
-  'aui-node',
-  function(A) {
-    var node = A.one('#add');
-    node.on(
-      'click',
-      function() {
-         A.one('#editterminationreasonsAddDelete').hide();
-         A.one('#editterminationreasonsForm').show();
-                     
-      }
-    );
-  }
-);
 
-AUI().ready('event', 'node', function(A){
+AUI().ready('event', 'node','transition',function(A){
 
-  A.one('#editterminationreasonsAddDelete').hide();
- 
- });
+  A.one('#terminationreasonsName').focus();
+  setTimeout(function(){
+    A.one('#editTerminationReasonMessage').transition('fadeOut');
+    A.one('#editTerminationReasonMessage').hide();
+},2000)
 
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#editCancel');
+    var node = A.one('#editterminationreasoncancel');
     node.on(
       'click',
       function() {
@@ -100,34 +42,43 @@ AUI().use(
     );																																
   }
 );
-
+ });
 </aui:script>
 
+ <% 
+   TerminationReasons editTerminationReasons = (TerminationReasons) portletSession.getAttribute("editTerminationReasons");
+ if(SessionMessages.contains(renderRequest.getPortletSession(),"termination-form-error")){%>
+<p id="editTerminationReasonMessage" class="alert alert-error"><liferay-ui:message key="Please Enter TerminationReason"/></p>
+<%} 
+ 
+%>
 
-
-</head>
-<body>
-<jsp:useBean id="editTerminationReasons" type="com.rknowsys.eapp.hrm.model.TerminationReasons" scope="request" />
-<div id="editterminationreasonsAddDelete" class="span12">
-		<a href="#" id="add">Add</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#"
-			id="delete">Delete</a>
-	</div>
-	<div id="editterminationreasonsForm">
-  <aui:form name="myForm" action="<%=updateterminationreasons.toString()%>">
-		<aui:input name="terminationreasonsId" type="hidden" id="terminationreasonsId"  value="<%=editTerminationReasons.getTerminationreasonsId()%>"/>
-			 	<div class="span12">
-			<div class="span2">
-				<label>Name</label>
+	<div class="row-fluid">
+		
+		<div  id="addterminationreasonsForm">
+			<div class="panel">
+				<div class="panel-heading">
+					<h4>Edit</h4>
+				</div>
+				<div class="panel-body">
+					<aui:form name="myForm" action="<%=updateterminationreasons.toString()%>" >
+						<aui:input name="terminationreasonsId" type="hidden" id="terminationreasonsId" value="<%=editTerminationReasons.getTerminationreasonsId()%>"/>
+						<div class="form-inline">
+							<label>TerminationReason Name: </label>
+							<input name="<portlet:namespace/>terminationreasonsName" id="terminationreasonsName" type="text" value="<%=editTerminationReasons.getTerminationreasonsName() %>">
+							<button type="submit" class="btn btn-primary"><i class="icon-ok"></i> Submit</button>
+							<button  type="reset" id ="editterminationreasoncancel" class="btn btn-danger"><i class="icon-remove"></i> Cancel</button>
+						</div>
+					</aui:form>
+				</div>
+			</div>
 		</div>
-		<div class="span3">		
-		 <input name="<portlet:namespace/>terminationreasonsName" type="text" required = "required" value="<%=editTerminationReasons.getTerminationreasonsName() %>" >
-			</div>
-			</div>
-	<aui:button type="submit" value="Submit"/> <aui:button  type="reset" value="Cancel" id ="editCancel"></aui:button>
-	</aui:form>
 	</div>
-	 <div><label style="color: white" >.</label></div>
-</body>
+	
+	
+	
+	
+
 <%
 PortletURL iteratorURL = renderResponse.createRenderURL();
 iteratorURL.setParameter("mvcPath", "/html/terminationreasons/edit.jsp");
@@ -143,6 +94,12 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 } else { 
 	sortByType = portalPrefs.getValue("NAME_SPACE", "sort-by-type ", "asc");   
 }
+long groupID=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery dynamicQuery=DynamicQueryFactoryUtil.
+forClass(TerminationReasons.class, PortletClassLoaderUtil.getClassLoader());
+dynamicQuery.add(RestrictionsFactoryUtil.eq("groupId", groupID));
+List<TerminationReasons> terminationReasonsList=TerminationReasonsLocalServiceUtil
+.dynamicQuery(dynamicQuery);
 %>
 <%!
   com.liferay.portal.kernel.dao.search.SearchContainer<TerminationReasons> searchContainer;
@@ -151,22 +108,28 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 		<liferay-ui:search-container-results>
 				
 		<%
-            List<TerminationReasons> listOfTerminationReasons = TerminationReasonsLocalServiceUtil.getTerminationReasonses(searchContainer.getStart(), searchContainer.getEnd());
-            OrderByComparator orderByComparator = CustomComparatorUtil.getterminationreasonsOrderByComparator(sortByCol, sortByType);         
+		
+		 List<TerminationReasons> pageList = ListUtil.subList(terminationReasonsList, searchContainer.getStart(), searchContainer.getEnd());
+		OrderByComparator orderByComparator =  CustomComparatorUtil.getterminationreasonsOrderByComparator(sortByCol, sortByType);
+   
+               Collections.sort(pageList,orderByComparator);
+               
+               if(terminationReasonsList.size()>5){
   
-           Collections.sort(listOfTerminationReasons,orderByComparator);
-  
-          results = listOfTerminationReasons;
-          
-           
-     
-               total = TerminationReasonsLocalServiceUtil.getTerminationReasonsesCount();
+               results = ListUtil.subList(terminationReasonsList, searchContainer.getStart(), 
+            		   searchContainer.getEnd());
+               }
+               else{
+            	   results = terminationReasonsList;
+               }
+               total = terminationReasonsList.size();
                pageContext.setAttribute("results", results);
                pageContext.setAttribute("total", total);
+		
  %>
 	</liferay-ui:search-container-results>
 	<liferay-ui:search-container-row className="TerminationReasons" keyProperty="terminationreasonsId" modelVar="terminationreasonsId"  rowVar="curRow" escapedModel="<%= true %>">
-	     <liferay-ui:search-container-column-text orderable="<%=true %>" name="TerminationReason Name" property="terminationreasonsName" orderableProperty="terminationreasonsName"/>
+	     <liferay-ui:search-container-column-text orderable="<%=true %>" name="Name" property="terminationreasonsName" orderableProperty="terminationreasonsName"/>
 		
 		 <liferay-ui:search-container-column-jsp name="Edit"  path="/html/terminationreasons/editClick.jsp"/>
 		 
@@ -174,7 +137,6 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	<liferay-ui:search-iterator/>
 	
 </liferay-ui:search-container>
-</html>
 
 
 

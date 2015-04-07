@@ -5,87 +5,14 @@
 <portlet:renderURL var="listview">
 	<portlet:param name="mvcPath" value="/html/skill/add.jsp" />
 </portlet:renderURL>
-<style type="text/css">	
-.table-first-header{
-width: 10%;
-}
-.table-last-header{
-width: 15%;
-}
-</style>
 <aui:script>
-AUI().use(
-  'aui-node',
-  function(A) {
-    var node = A.one('#delete');
-    node.on(
-      'click',
-      function() {
-     var idArray = [];
-      A.all('input[type=checkbox]:checked').each(function(object) {
-      idArray.push(object.get("value"));
-    
-        });
-       if(idArray==""){
-			  alert("Please select records!");
-		  }else{
-			  var d = confirm("Are you sure you want to delete the selected skill?");
-		  if(d){
-		   var url = '<%=deleteSkills%>';
-          A.io.request(url,
-         {
-          data: {  
-                <portlet:namespace />skillIds: idArray,  
-                 },
-          on: {
-               success: function() { 
-                   alert('deleted successfully');
-                   window.location='<%=listview%>';
-              },
-               failure: function() {
-                  
-                 }
-                }
-                 }
-                );
-		  																		
-		  console.log(idArray);
-	  
-      return true;
-  }
-  else
-    return false;
-}             
-      }
-    );
-  }
-);
-</aui:script><aui:script>
-AUI().use(
-  'aui-node',
-  function(A) {
-    var node = A.one('#add');
-    node.on(
-      'click',
-      function() {
-         A.one('#editSkillAddDelete').hide();
-         A.one('#editSkillForm').show();
-                     
-      }
-    );
-  }
-);
-
 AUI().ready('event', 'node', function(A){
-
-  A.one('#editSkillAddDelete').hide();
- 
- });
-
+A.one('#<portlet:namespace/>skillName').focus();
+});
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#editCancel');
+    var node = A.one('#cancel');
     node.on(
       'click',
       function() {
@@ -100,41 +27,31 @@ AUI().use(
 
 </aui:script>
 
-
-
-</head>
-<body>
-<jsp:useBean id="editSkill" type="com.rknowsys.eapp.hrm.model.Skill" scope="request" />
-<div id="editSkillAddDelete" class="span12">
-		<a href="#" id="add">Add</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#"
-			id="delete">Delete</a>
-	</div>
-	<div id="editSkillForm">
+<% 
+  Skill editSkill = (Skill) portletSession.getAttribute("editSkill");
+if(SessionMessages.contains(renderRequest.getPortletSession(),"skillName-empty-error")){%>
+<p id="editSkillMessage" class="alert alert-error"><liferay-ui:message key="Please Enter Skill Name"/></p>
+<%} 
+ 
+%>
+<div id="editSkillForm" class="panel">
+  <div class="panel-heading">
+  	<h4>Edit</h4>
+  </div>
+  <div class="panel-body">
   <aui:form name="myForm" action="<%=updateSkills.toString()%>">
+  	<div class="form-horizontal">
 		<aui:input name="skillId" type="hidden" id="skillId"  value="<%=editSkill.getSkillId()%>"/>
-				<div class="span12">
-			<div class="span3">
-				<label>Name</label>
+		<aui:input label="name" name="skill_name" type="text" id="skillName" value="<%=editSkill.getSkillName() %>" showRequiredLabel="false"></aui:input>
+		<aui:input type="textarea" label="Description" name="skill_description" rows="5" cols="5" value="<%=editSkill.getDescription() %>" ></aui:input>	 
+		<div class="controls">
+			<button type="submit" class="btn btn-primary"><i class="icon-ok"></i> Submit</button>
+			<button  type="reset" id ="cancel" class="btn btn-danger"><i class="icon-remove"></i> Cancel</button>
 		</div>
-		<div class="span3">		
-		 <input name="<portlet:namespace/>skill_name" type="text" required = "required" value="<%=editSkill.getSkillName() %>">
-			</div>
-		</div>
-		<div class="span12">
-			<div class="span3">
-				<label>Description</label>
-		</div>
-		<div class="span3">		
-		 <textarea name="<portlet:namespace/>skill_description" rows="5" cols="5"  ></textarea>
-			</div>
-		</div>
-		
-			 
-	<aui:button type="submit" value="Submit"/> <aui:button  type="reset" value="Cancel" id ="editCancel"></aui:button>
+	</div>
 	</aui:form>
 	</div>
-	 <div><label style="color: white" >.</label></div>
-</body>
+</div>
 <%
 PortletURL iteratorURL = renderResponse.createRenderURL();
 iteratorURL.setParameter("mvcPath", "/html/skill/edit.jsp");
@@ -150,6 +67,14 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 } else { 
 	sortByType = portalPrefs.getValue("NAME_SPACE", "sort-by-type ", "asc");   
 }
+long groupId=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery skillDynamicQuery = DynamicQueryFactoryUtil
+.forClass(Skill.class,
+		PortletClassLoaderUtil.getClassLoader());
+skillDynamicQuery.add(PropertyFactoryUtil.forName("groupId")
+.eq(groupId));
+List<Skill> skillDetails = SkillLocalServiceUtil
+.dynamicQuery(skillDynamicQuery);
 %>
 <%!
   com.liferay.portal.kernel.dao.search.SearchContainer<Skill> searchContainer;
@@ -158,18 +83,21 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 		<liferay-ui:search-container-results>
 				
 		<%
-            List<Skill> listOfSkills = SkillLocalServiceUtil.getSkills(searchContainer.getStart(), searchContainer.getEnd());
-            OrderByComparator orderByComparator = CustomComparatorUtil.getSkillsrOrderByComparator(sortByCol, sortByType);         
-  
-           Collections.sort(listOfSkills,orderByComparator);
-  
-          results = listOfSkills;
-          
-           
-     
-               total = SkillLocalServiceUtil.getSkillsCount();
-               pageContext.setAttribute("results", results);
-               pageContext.setAttribute("total", total);
+		  List<Skill> skillList = ListUtil.subList(skillDetails, searchContainer.getStart(), searchContainer.getEnd());
+				OrderByComparator orderByComparator =  CustomComparatorUtil.getSkillsrOrderByComparator(sortByCol, sortByType);
+		   
+		               Collections.sort(skillList,orderByComparator);
+		               
+		               if(skillDetails.size()>5){
+		            	   results = ListUtil.subList(skillDetails, searchContainer.getStart(), searchContainer.getEnd());
+		               }
+		               else{
+		            	   results= skillDetails;
+		               }
+		               total = skillDetails.size();
+		               pageContext.setAttribute("results", results);
+		               pageContext.setAttribute("total", total); 
+		
  %>
 	</liferay-ui:search-container-results>
 	<liferay-ui:search-container-row className="Skill" keyProperty="skillId" modelVar="skillId"  rowVar="curRow" escapedModel="<%= true %>">
@@ -182,7 +110,7 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	<liferay-ui:search-iterator/>
 	
 </liferay-ui:search-container>
-</html>
+
 
 
 

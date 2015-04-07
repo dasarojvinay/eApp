@@ -2,35 +2,44 @@ package com.rknowsys.eapp;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
+import javax.portlet.PortletSession;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
 import org.apache.log4j.Logger;
 
 import com.liferay.counter.service.CounterLocalServiceUtil;
+import com.liferay.portal.kernel.dao.orm.Criterion;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.portlet.PortletClassLoaderUtil;
+import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.util.bridges.mvc.MVCPortlet;
+import com.liferay.util.servlet.filters.DynamicFilterConfig;
 import com.rknowsys.eapp.hrm.model.EmploymentStatus;
 import com.rknowsys.eapp.hrm.service.EmploymentStatusLocalServiceUtil;
 
 public class EmploymentStatusAction extends MVCPortlet {
 
 	public static final String EMPLOYMENT_STATUS_ID = "employmentstatusId";
-	
+
 	private static Logger log = Logger.getLogger(EmploymentStatusAction.class);
-	
+
 	/**
 	 * <p>
-	 * This method inserts new EmploymentStatus record in database if the id is not
-	 * existing, otherwise updates the record based on the record id.
+	 * This method inserts new EmploymentStatus record in database if the id is
+	 * not existing, otherwise updates the record based on the record id.
 	 * </p>
 	 * 
 	 * @param actionRequest
@@ -47,58 +56,163 @@ public class EmploymentStatusAction extends MVCPortlet {
 				.getAttribute(WebKeys.THEME_DISPLAY);
 		log.info("company Id == " + themeDisplay.getCompanyId());
 		log.info("userId = " + themeDisplay.getUserId());
-		log.info("groupId = " + themeDisplay.getCompanyGroupId());
 		try {
-			EmploymentStatus EmploymentStatus = EmploymentStatusLocalServiceUtil
-					.createEmploymentStatus(CounterLocalServiceUtil.increment());
+			log.info("groupId = "
+					+ themeDisplay.getLayout().getGroup().getGroupId());
+		} catch (PortalException e2) {
+			log.error(e2);
+		}
+		try {
+			String id = ParamUtil
+					.getString(actionRequest, EMPLOYMENT_STATUS_ID);
+			String inputName = ParamUtil.getString(actionRequest,
+					CustomComparatorUtil.EMPLOYMENT_STATUS_COL_NAME);
+			String employmentStatus = inputName.trim();
 
 			log.info("employmentstatus = "
-					+ ParamUtil.getString(actionRequest, CustomComparatorUtil.EMPLOYMENT_STATUS_COL_NAME));
-			String id = ParamUtil.getString(actionRequest, EMPLOYMENT_STATUS_ID);
+					+ ParamUtil.getString(actionRequest,
+							CustomComparatorUtil.EMPLOYMENT_STATUS_COL_NAME));
+
 			log.info("id == " + id);
 			Date date = new Date();
 			if (id == "" || id == null) {
 				log.info("inside if loop...");
-				EmploymentStatus.setEmploymentstatus(ParamUtil.getString(actionRequest,
-						CustomComparatorUtil.EMPLOYMENT_STATUS_COL_NAME));
-				EmploymentStatus.setCreateDate(date);
-				EmploymentStatus.setModifiedDate(date);
-				EmploymentStatus.setCompanyId(themeDisplay.getCompanyId());
-				EmploymentStatus.setGroupId(themeDisplay.getCompanyGroupId());
-				EmploymentStatus.setUserId(themeDisplay.getUserId());
-				EmploymentStatus = EmploymentStatusLocalServiceUtil
-						.addEmploymentStatus(EmploymentStatus);
-				log.info("end of if block");
+
+				if (employmentStatus == null || employmentStatus.equals("")) {
+
+					log.info("empty value in employmentstatus");
+
+					SessionMessages.add(actionRequest.getPortletSession(),
+							"employmentStatus-empty-error");
+					actionResponse.setRenderParameter("mvcPath",
+							"/html/employmentstatus/addemploymentstatus.jsp");
+
+				} else {
+					Criterion criterion = null;
+					DynamicQuery dynamicQuery = DynamicQueryFactoryUtil
+							.forClass(EmploymentStatus.class,
+									PortletClassLoaderUtil.getClassLoader());
+					criterion = RestrictionsFactoryUtil.eq("employmentstatus",
+							inputName);
+					try {
+						criterion = RestrictionsFactoryUtil.and(criterion,
+								RestrictionsFactoryUtil.eq("groupId",
+										themeDisplay.getLayout().getGroup()
+												.getGroupId()));
+					} catch (PortalException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					dynamicQuery.add(criterion);
+					List<EmploymentStatus> employmentStatuslist = EmploymentStatusLocalServiceUtil
+							.dynamicQuery(dynamicQuery);
+					if (employmentStatuslist.size() > 0) {
+
+						EmploymentStatus employmentStatus3 = employmentStatuslist
+								.get(0);
+						if (employmentStatus3.getEmploymentstatus()
+								.equalsIgnoreCase(inputName)) {
+							log.info("duplicate value in employmentstatus");
+
+							SessionMessages.add(
+									actionRequest.getPortletSession(),
+									"employmentStatus-duplicate-error");
+							actionResponse
+									.setRenderParameter("mvcPath",
+											"/html/employmentstatus/addemploymentstatus.jsp");
+
+						}
+
+					} else {
+						EmploymentStatus employmentStatus2 = EmploymentStatusLocalServiceUtil
+								.createEmploymentStatus(CounterLocalServiceUtil
+										.increment());
+
+						employmentStatus2
+								.setEmploymentstatus(ParamUtil
+										.getString(
+												actionRequest,
+												CustomComparatorUtil.EMPLOYMENT_STATUS_COL_NAME));
+						employmentStatus2.setCreateDate(date);
+						employmentStatus2.setModifiedDate(date);
+						employmentStatus2.setCompanyId(themeDisplay
+								.getCompanyId());
+						employmentStatus2.setGroupId(themeDisplay.getLayout()
+								.getGroup().getGroupId());
+						employmentStatus2.setUserId(themeDisplay.getUserId());
+						employmentStatus2 = EmploymentStatusLocalServiceUtil
+								.addEmploymentStatus(employmentStatus2);
+						log.info("end of if block..employmentstatus added");
+					}
+				}
 			} else {
 				log.info("else block to update...");
+				if (employmentStatus == null || employmentStatus.equals("")) {
 
-				long EmploymentStatusid = Long.parseLong(id);
+					log.info("empty value in employmentstatus in edit.jsp");
 
-				EmploymentStatus EmploymentStatus1 = EmploymentStatusLocalServiceUtil
-						.getEmploymentStatus(EmploymentStatusid);
+					EmploymentStatus es = EmploymentStatusLocalServiceUtil
+							.getEmploymentStatus(Long.parseLong(id));
+					PortletSession portletSession = actionRequest
+							.getPortletSession();
+					portletSession.setAttribute("editemploymentstatus", es);
 
-				EmploymentStatus1.setId(EmploymentStatusid);
+					SessionMessages.add(actionRequest.getPortletSession(),
+							"employmentStatus-empty-error");
+					actionResponse.setRenderParameter("mvcPath",
+							"/html/employmentstatus/addemploymentstatus.jsp");
 
-				EmploymentStatus1.setEmploymentstatus(ParamUtil.getString(actionRequest,
-						CustomComparatorUtil.EMPLOYMENT_STATUS_COL_NAME));
-				EmploymentStatus1.setModifiedDate(date);
-				EmploymentStatus1.setCompanyId(themeDisplay.getCompanyId());
-				EmploymentStatus1.setGroupId(themeDisplay.getCompanyGroupId());
-				EmploymentStatus1.setUserId(themeDisplay.getUserId());
+				} else {
 
-				EmploymentStatus1 = EmploymentStatusLocalServiceUtil
-						.updateEmploymentStatus(EmploymentStatus1);
-				log.info("end of else block");
+					long EmploymentStatusid = Long.parseLong(id);
+
+					EmploymentStatus employmentStatus1 = EmploymentStatusLocalServiceUtil
+							.getEmploymentStatus(EmploymentStatusid);
+					DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(EmploymentStatus.class,PortletClassLoaderUtil.getClassLoader());
+					dynamicQuery.add(RestrictionsFactoryUtil.eq("employmentstatus", inputName));
+					dynamicQuery.add(RestrictionsFactoryUtil.eq("groupId", themeDisplay.getLayout().getGroup().getGroupId()));
+					List<EmploymentStatus> eList = EmploymentStatusLocalServiceUtil.dynamicQuery(dynamicQuery);
+					if(eList.size()>0)
+					{
+						EmploymentStatus employmentStatus2 = eList.get(0);
+						if(employmentStatus2.getEmploymentstatus().equalsIgnoreCase(inputName) && !employmentStatus1.getEmploymentstatus().equalsIgnoreCase(inputName))
+						{
+							
+							SessionMessages.add(
+									actionRequest.getPortletSession(),
+									"employmentStatus-duplicate-error");
+							actionResponse
+									.setRenderParameter("mvcPath",
+											"/html/employmentstatus/addemploymentstatus.jsp");
+							
+						}
+					}
+					else{
+
+					employmentStatus1.setEmploymentStatusId(EmploymentStatusid);
+
+					employmentStatus1.setEmploymentstatus(ParamUtil.getString(
+							actionRequest,
+							CustomComparatorUtil.EMPLOYMENT_STATUS_COL_NAME));
+					employmentStatus1.setModifiedDate(date);
+					employmentStatus1.setCompanyId(themeDisplay.getCompanyId());
+					employmentStatus1.setGroupId(themeDisplay.getLayout()
+							.getGroup().getGroupId());
+					employmentStatus1.setUserId(themeDisplay.getUserId());
+
+					employmentStatus1 = EmploymentStatusLocalServiceUtil
+							.updateEmploymentStatus(employmentStatus1);
+					log.info("end of else block");
+					}
+				}
 
 			}
 		} catch (SystemException e) {
-			
-			e.printStackTrace();
-			log.info("system exception");
+
+			log.error(e);
 		} catch (PortalException e) {
 
-			e.printStackTrace();
-			log.info("portalexception");
+			log.error(e);
 		}
 		log.info("end of the saveEmploymentStatus method");
 
@@ -119,19 +233,13 @@ public class EmploymentStatusAction extends MVCPortlet {
 	 * @throws NumberFormatException
 	 */
 	public void serveResource(ResourceRequest resourceRequest,
-			ResourceResponse resourceResponse) throws IOException,NumberFormatException
-           {
+			ResourceResponse resourceResponse) throws IOException,
+			NumberFormatException {
 		if (resourceRequest.getResourceID().equals("deleteEmploymentStatus")) {
 
 			log.info("inside deleteEmploymentStatus... serveResource");
 			EmploymentStatus EmploymentStatus;
-			try {
-				EmploymentStatus = EmploymentStatusLocalServiceUtil
-						.createEmploymentStatus(CounterLocalServiceUtil.increment());
-			} catch (SystemException e1) {
 
-				e1.printStackTrace();
-			}
 			String[] idsArray = ParamUtil.getParameterValues(resourceRequest,
 					"employmentstatusIds");
 
@@ -147,22 +255,21 @@ public class EmploymentStatusAction extends MVCPortlet {
 				} else {
 					try {
 						EmploymentStatus = EmploymentStatusLocalServiceUtil
-								.deleteEmploymentStatus(Long.parseLong(idsArray[i]));
+								.deleteEmploymentStatus(Long
+										.parseLong(idsArray[i]));
 						log.info("end of try block in delete...");
 					} catch (PortalException e) {
 
-						e.printStackTrace();
-						log.info("portal exception...");
+						log.error(e);
 					} catch (SystemException e) {
 
-						e.printStackTrace();
-						log.info("system exception...");
+						log.error(e);
 					}
 				}
-				
+
 			}
 			log.info("end of for loop..");
-			
+
 		}
 		log.info("end of deleteEmploymentStatus method...");
 
@@ -170,8 +277,8 @@ public class EmploymentStatusAction extends MVCPortlet {
 
 	/**
 	 * <p>
-	 * This method gets the single EmploymentStatus record from database based on the
-	 * given EmploymentStatus Id
+	 * This method gets the single EmploymentStatus record from database based
+	 * on the given EmploymentStatus Id
 	 * </p>
 	 * 
 	 * @param actionRequest
@@ -188,14 +295,12 @@ public class EmploymentStatusAction extends MVCPortlet {
 			PortletException, NumberFormatException, PortalException,
 			SystemException {
 		log.info("inside editEmploymentStatus...");
-		String s = ParamUtil.getString(actionRequest, EMPLOYMENT_STATUS_ID);
+		String s = ParamUtil.getString(actionRequest, "employmentstatusId");
 		log.info("employmentstatusId == " + s);
-		EmploymentStatus es = EmploymentStatusLocalServiceUtil.getEmploymentStatus(Long
-				.parseLong(s));
-
-		log.info(es.getId());
-		log.info(es.getId());
-		actionRequest.setAttribute("editemploymentstatus", es);
+		EmploymentStatus es = EmploymentStatusLocalServiceUtil
+				.getEmploymentStatus(Long.parseLong(s));
+		PortletSession portletSession = actionRequest.getPortletSession();
+		portletSession.setAttribute("editemploymentstatus", es);
 		actionResponse.setRenderParameter("jspPage",
 				"/html/employmentstatus/editemploymentstatus.jsp");
 	}

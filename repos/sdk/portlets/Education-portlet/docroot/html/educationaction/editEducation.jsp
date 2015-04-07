@@ -1,3 +1,4 @@
+<%@page import="com.liferay.portal.kernel.servlet.SessionMessages"%>
 <%@ include file="/html/educationaction/init.jsp" %>
 <portlet:actionURL var="updateEducations" name="updateEducation">
 </portlet:actionURL>
@@ -6,78 +7,17 @@
 	<portlet:param name="mvcPath" value="/html/educationaction/addEducation.jsp" />
 </portlet:renderURL>
 <aui:script>
-AUI().use(
-  'aui-node',
-  function(A) {
-    var node = A.one('#delete');
-    node.on(
-      'click',
-      function() {
-     var idArray = [];
-      A.all('input[type=checkbox]:checked').each(function(object) {
-      idArray.push(object.get("value"));
-    
-        });
-       if(idArray==""){
-			  alert("Please select records!");
-		  }else{
-			  var d = confirm("Are you sure you want to delete the selected education?");
-		  if(d){
-		   var url = '<%=deleteEducations%>';
-          A.io.request(url,
-         {
-          data: {  
-                <portlet:namespace />educationIds: idArray,  
-                 },
-          on: {
-               success: function() { 
-                   alert('deleted successfully');
-                   window.location='<%=listview%>';
-              },
-               failure: function() {
-                  
-                 }
-                }
-                 }
-                );
-		  																		
-		  console.log(idArray);
-	  
-      return true;
-  }
-  else
-    return false;
-}             
-      }
-    );
-  }
-);
-</aui:script><aui:script>
-AUI().use(
-  'aui-node',
-  function(A) {
-    var node = A.one('#add');
-    node.on(
-      'click',
-      function() {
-         A.one('#editEducationAddDelete').hide();
-         A.one('#editEducationForm').show();
-                     
-      }
-    );
-  }
-);
-
-AUI().ready('event', 'node', function(A){
-
-  A.one('#editEducationAddDelete').hide();
- 
+ AUI().ready('event', 'node','transition',function(A){
+ A.one('#educationName').focus();
+  setTimeout(function(){
+    A.one('#editEducationMessage').transition('fadeOut');
+},2000)
  });
 
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#editCancel');
+    var node = A.one('#editcanceleducation');
     node.on(
       'click',
       function() {
@@ -95,30 +35,34 @@ AUI().use(
 
 </head>
 <body>
-<jsp:useBean id="editEducation" type="com.rknowsys.eapp.hrm.model.Education" scope="request" />
+<% 
+  Education editEducation = (Education) portletSession.getAttribute("editEducation");
+if(SessionMessages.contains(renderRequest.getPortletSession(),"educationName-empty-error")){%>
+<p id="editEducationMessage" class="alert alert-error"><liferay-ui:message key="Please Enter Education Name"/></p>
+<%} 
+ 
+%>
+
+
+
 <div class="row-fluid">
-	<div id="editEducationAddDelete" class="span12">
-		<a href="#" class="btn btn-success" id="add"><i class="icon-plus"></i></a>
-		<a href="#"  class="btn btn-danger" id="delete"><i class="icon-trash"></i></a>
-	</div>
 	<div id="editEducationForm">
-  	<aui:form name="myForm" action="<%=updateEducations.toString()%>">
-		<aui:input name="educationId" type="hidden" id="educationId"  value="<%=editEducation.getEducationId()%>"/>
-		<div class="row-fluid">
-			<div class="span2 text-right">
-				<label>Level</label>
+		<div class="panel">
+			<div class="panel-heading">
+				<h4>Edit</h4>
 			</div>
-			<div class="span6">		
-		 		<input name="<portlet:namespace/>education_level" type="text" required = "required" value="<%=editEducation.getEduLevel() %>" >
+			<div class="panel-body">
+			  	<aui:form name="myForm" action="<%=updateEducations.toString()%>">
+					<aui:input name="educationId" type="hidden" id="educationId"  value="<%=editEducation.getEducationId()%>"/>
+					<div class="form-inline">
+							<label>Level: </label>
+					 		<input name="<portlet:namespace/>education_level" type="text" id="educationName" value="<%=editEducation.getEduLevel() %>" >
+							<button type="submit" class="btn btn-primary"><i class="icon-ok"></i> Submit</button>
+							<button  type="reset" id ="editcanceleducation" class="btn btn-danger"><i class="icon-remove"></i> Cancel</button>
+					</div>
+				</aui:form>
 			</div>
 		</div>
-		<div class="row-fluid">
-			<div class="span6 offset2">
-				<aui:button type="submit" class="btn btn-success" value="Submit" />
-				<aui:button  type="reset" class="btn btn-danger" id ="editCancel" value="Cancel"></aui:button>
-			</div>
-		</div>
-	</aui:form>
 	</div>
 </div>
 </body>
@@ -137,6 +81,14 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 } else { 
 	sortByType = portalPrefs.getValue("NAME_SPACE", "sort-by-type ", "asc");   
 }
+long groupId=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery educationDynamicQuery = DynamicQueryFactoryUtil
+.forClass(Education.class,
+		PortletClassLoaderUtil.getClassLoader());
+educationDynamicQuery.add(PropertyFactoryUtil.forName("groupId")
+.eq(groupId));
+List<Education> educationDetails = EducationLocalServiceUtil
+.dynamicQuery(educationDynamicQuery);
 %>
 <%!
   com.liferay.portal.kernel.dao.search.SearchContainer<Education> searchContainer;
@@ -145,18 +97,23 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 		<liferay-ui:search-container-results>
 				
 		<%
-            List<Education> listOfEducations = EducationLocalServiceUtil.getEducations(searchContainer.getStart(), searchContainer.getEnd());
-            OrderByComparator orderByComparator = CustomComparatorUtil.getEducationOrderByComparator(sortByCol, sortByType);         
-  
-           Collections.sort(listOfEducations,orderByComparator);
-  
-          results = listOfEducations;
-          
-           
-     
-               total = EducationLocalServiceUtil.getEducationsCount();
-               pageContext.setAttribute("results", results);
-               pageContext.setAttribute("total", total);
+		  
+		List<Education> educationList = ListUtil.subList(educationDetails, searchContainer.getStart(), searchContainer.getEnd());
+		
+		OrderByComparator orderByComparator =  CustomComparatorUtil.getEducationOrderByComparator(sortByCol, sortByType);
+   
+               Collections.sort(educationList,orderByComparator);
+     if(educationDetails.size()>5){
+    	 results = educationList;
+     }
+     else{
+           results = educationDetails;
+     }
+       total = educationDetails.size();
+       pageContext.setAttribute("results", results);
+       pageContext.setAttribute("total", total);
+		
+		
  %>
 	</liferay-ui:search-container-results>
 	<liferay-ui:search-container-row className="Education" keyProperty="educationId" modelVar="educationId"  rowVar="curRow" escapedModel="<%= true %>">

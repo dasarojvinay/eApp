@@ -102,13 +102,19 @@ public class NewsLocalServiceClpInvoker {
 				"com.rknowsys.eapp.hrm.model.News"
 			};
 
-		_methodName232 = "getBeanIdentifier";
+		_methodName260 = "getBeanIdentifier";
 
-		_methodParameterTypes232 = new String[] {  };
+		_methodParameterTypes260 = new String[] {  };
 
-		_methodName233 = "setBeanIdentifier";
+		_methodName261 = "setBeanIdentifier";
 
-		_methodParameterTypes233 = new String[] { "java.lang.String" };
+		_methodParameterTypes261 = new String[] { "java.lang.String" };
+
+		_methodName266 = "findNewsDetails";
+
+		_methodParameterTypes266 = new String[] {
+				"java.lang.String", "java.lang.String", "long", "int", "int"
+			};
 	}
 
 	public Object invokeMethod(String name, String[] parameterTypes,
@@ -200,16 +206,25 @@ public class NewsLocalServiceClpInvoker {
 			return NewsLocalServiceUtil.updateNews((com.rknowsys.eapp.hrm.model.News)arguments[0]);
 		}
 
-		if (_methodName232.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes232, parameterTypes)) {
+		if (_methodName260.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes260, parameterTypes)) {
 			return NewsLocalServiceUtil.getBeanIdentifier();
 		}
 
-		if (_methodName233.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes233, parameterTypes)) {
+		if (_methodName261.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes261, parameterTypes)) {
 			NewsLocalServiceUtil.setBeanIdentifier((java.lang.String)arguments[0]);
 
 			return null;
+		}
+
+		if (_methodName266.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes266, parameterTypes)) {
+			return NewsLocalServiceUtil.findNewsDetails((java.lang.String)arguments[0],
+				(java.lang.String)arguments[1],
+				((Long)arguments[2]).longValue(),
+				((Integer)arguments[3]).intValue(),
+				((Integer)arguments[4]).intValue());
 		}
 
 		throw new UnsupportedOperationException();
@@ -247,8 +262,10 @@ public class NewsLocalServiceClpInvoker {
 	private String[] _methodParameterTypes14;
 	private String _methodName15;
 	private String[] _methodParameterTypes15;
-	private String _methodName232;
-	private String[] _methodParameterTypes232;
-	private String _methodName233;
-	private String[] _methodParameterTypes233;
+	private String _methodName260;
+	private String[] _methodParameterTypes260;
+	private String _methodName261;
+	private String[] _methodParameterTypes261;
+	private String _methodName266;
+	private String[] _methodParameterTypes266;
 }

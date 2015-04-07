@@ -26,6 +26,9 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.BaseModel;
 
 import com.rknowsys.eapp.hrm.model.DocCategoryClp;
+import com.rknowsys.eapp.hrm.model.DocumentCategoriesClp;
+import com.rknowsys.eapp.hrm.model.DocumentsAttachmentsClp;
+import com.rknowsys.eapp.hrm.model.DocumentsClp;
 import com.rknowsys.eapp.hrm.model.EducationClp;
 import com.rknowsys.eapp.hrm.model.EmpAttachmentClp;
 import com.rknowsys.eapp.hrm.model.EmpContactDetailsClp;
@@ -53,16 +56,19 @@ import com.rknowsys.eapp.hrm.model.InterviewClp;
 import com.rknowsys.eapp.hrm.model.JobCategoryClp;
 import com.rknowsys.eapp.hrm.model.JobTitleClp;
 import com.rknowsys.eapp.hrm.model.LanguageClp;
+import com.rknowsys.eapp.hrm.model.LeaveAccrualClp;
 import com.rknowsys.eapp.hrm.model.LeaveCarryForwardPolicyClp;
+import com.rknowsys.eapp.hrm.model.LeaveGeneralClp;
 import com.rknowsys.eapp.hrm.model.LeavePeriodClp;
 import com.rknowsys.eapp.hrm.model.LeaveRestrictionClp;
-import com.rknowsys.eapp.hrm.model.LeaveRuleClp;
-import com.rknowsys.eapp.hrm.model.LeaveTypeApplicabilityClp;
+import com.rknowsys.eapp.hrm.model.LeaveRuleApplicableClp;
 import com.rknowsys.eapp.hrm.model.LeaveTypeClp;
+import com.rknowsys.eapp.hrm.model.LeaveTypeEmployeeGroupsClp;
 import com.rknowsys.eapp.hrm.model.LicenseClp;
 import com.rknowsys.eapp.hrm.model.LocationClp;
 import com.rknowsys.eapp.hrm.model.MembershipClp;
 import com.rknowsys.eapp.hrm.model.NationalityClp;
+import com.rknowsys.eapp.hrm.model.NewsAttachmentsClp;
 import com.rknowsys.eapp.hrm.model.NewsClp;
 import com.rknowsys.eapp.hrm.model.OrganizationClp;
 import com.rknowsys.eapp.hrm.model.PayGradeClp;
@@ -152,6 +158,18 @@ public class ClpSerializer {
 
 		if (oldModelClassName.equals(DocCategoryClp.class.getName())) {
 			return translateInputDocCategory(oldModel);
+		}
+
+		if (oldModelClassName.equals(DocumentCategoriesClp.class.getName())) {
+			return translateInputDocumentCategories(oldModel);
+		}
+
+		if (oldModelClassName.equals(DocumentsClp.class.getName())) {
+			return translateInputDocuments(oldModel);
+		}
+
+		if (oldModelClassName.equals(DocumentsAttachmentsClp.class.getName())) {
+			return translateInputDocumentsAttachments(oldModel);
 		}
 
 		if (oldModelClassName.equals(EducationClp.class.getName())) {
@@ -262,8 +280,16 @@ public class ClpSerializer {
 			return translateInputLanguage(oldModel);
 		}
 
+		if (oldModelClassName.equals(LeaveAccrualClp.class.getName())) {
+			return translateInputLeaveAccrual(oldModel);
+		}
+
 		if (oldModelClassName.equals(LeaveCarryForwardPolicyClp.class.getName())) {
 			return translateInputLeaveCarryForwardPolicy(oldModel);
+		}
+
+		if (oldModelClassName.equals(LeaveGeneralClp.class.getName())) {
+			return translateInputLeaveGeneral(oldModel);
 		}
 
 		if (oldModelClassName.equals(LeavePeriodClp.class.getName())) {
@@ -274,16 +300,16 @@ public class ClpSerializer {
 			return translateInputLeaveRestriction(oldModel);
 		}
 
-		if (oldModelClassName.equals(LeaveRuleClp.class.getName())) {
-			return translateInputLeaveRule(oldModel);
+		if (oldModelClassName.equals(LeaveRuleApplicableClp.class.getName())) {
+			return translateInputLeaveRuleApplicable(oldModel);
 		}
 
 		if (oldModelClassName.equals(LeaveTypeClp.class.getName())) {
 			return translateInputLeaveType(oldModel);
 		}
 
-		if (oldModelClassName.equals(LeaveTypeApplicabilityClp.class.getName())) {
-			return translateInputLeaveTypeApplicability(oldModel);
+		if (oldModelClassName.equals(LeaveTypeEmployeeGroupsClp.class.getName())) {
+			return translateInputLeaveTypeEmployeeGroups(oldModel);
 		}
 
 		if (oldModelClassName.equals(LicenseClp.class.getName())) {
@@ -304,6 +330,10 @@ public class ClpSerializer {
 
 		if (oldModelClassName.equals(NewsClp.class.getName())) {
 			return translateInputNews(oldModel);
+		}
+
+		if (oldModelClassName.equals(NewsAttachmentsClp.class.getName())) {
+			return translateInputNewsAttachments(oldModel);
 		}
 
 		if (oldModelClassName.equals(OrganizationClp.class.getName())) {
@@ -365,6 +395,37 @@ public class ClpSerializer {
 		DocCategoryClp oldClpModel = (DocCategoryClp)oldModel;
 
 		BaseModel<?> newModel = oldClpModel.getDocCategoryRemoteModel();
+
+		newModel.setModelAttributes(oldClpModel.getModelAttributes());
+
+		return newModel;
+	}
+
+	public static Object translateInputDocumentCategories(BaseModel<?> oldModel) {
+		DocumentCategoriesClp oldClpModel = (DocumentCategoriesClp)oldModel;
+
+		BaseModel<?> newModel = oldClpModel.getDocumentCategoriesRemoteModel();
+
+		newModel.setModelAttributes(oldClpModel.getModelAttributes());
+
+		return newModel;
+	}
+
+	public static Object translateInputDocuments(BaseModel<?> oldModel) {
+		DocumentsClp oldClpModel = (DocumentsClp)oldModel;
+
+		BaseModel<?> newModel = oldClpModel.getDocumentsRemoteModel();
+
+		newModel.setModelAttributes(oldClpModel.getModelAttributes());
+
+		return newModel;
+	}
+
+	public static Object translateInputDocumentsAttachments(
+		BaseModel<?> oldModel) {
+		DocumentsAttachmentsClp oldClpModel = (DocumentsAttachmentsClp)oldModel;
+
+		BaseModel<?> newModel = oldClpModel.getDocumentsAttachmentsRemoteModel();
 
 		newModel.setModelAttributes(oldClpModel.getModelAttributes());
 
@@ -643,11 +704,31 @@ public class ClpSerializer {
 		return newModel;
 	}
 
+	public static Object translateInputLeaveAccrual(BaseModel<?> oldModel) {
+		LeaveAccrualClp oldClpModel = (LeaveAccrualClp)oldModel;
+
+		BaseModel<?> newModel = oldClpModel.getLeaveAccrualRemoteModel();
+
+		newModel.setModelAttributes(oldClpModel.getModelAttributes());
+
+		return newModel;
+	}
+
 	public static Object translateInputLeaveCarryForwardPolicy(
 		BaseModel<?> oldModel) {
 		LeaveCarryForwardPolicyClp oldClpModel = (LeaveCarryForwardPolicyClp)oldModel;
 
 		BaseModel<?> newModel = oldClpModel.getLeaveCarryForwardPolicyRemoteModel();
+
+		newModel.setModelAttributes(oldClpModel.getModelAttributes());
+
+		return newModel;
+	}
+
+	public static Object translateInputLeaveGeneral(BaseModel<?> oldModel) {
+		LeaveGeneralClp oldClpModel = (LeaveGeneralClp)oldModel;
+
+		BaseModel<?> newModel = oldClpModel.getLeaveGeneralRemoteModel();
 
 		newModel.setModelAttributes(oldClpModel.getModelAttributes());
 
@@ -674,10 +755,11 @@ public class ClpSerializer {
 		return newModel;
 	}
 
-	public static Object translateInputLeaveRule(BaseModel<?> oldModel) {
-		LeaveRuleClp oldClpModel = (LeaveRuleClp)oldModel;
+	public static Object translateInputLeaveRuleApplicable(
+		BaseModel<?> oldModel) {
+		LeaveRuleApplicableClp oldClpModel = (LeaveRuleApplicableClp)oldModel;
 
-		BaseModel<?> newModel = oldClpModel.getLeaveRuleRemoteModel();
+		BaseModel<?> newModel = oldClpModel.getLeaveRuleApplicableRemoteModel();
 
 		newModel.setModelAttributes(oldClpModel.getModelAttributes());
 
@@ -694,11 +776,11 @@ public class ClpSerializer {
 		return newModel;
 	}
 
-	public static Object translateInputLeaveTypeApplicability(
+	public static Object translateInputLeaveTypeEmployeeGroups(
 		BaseModel<?> oldModel) {
-		LeaveTypeApplicabilityClp oldClpModel = (LeaveTypeApplicabilityClp)oldModel;
+		LeaveTypeEmployeeGroupsClp oldClpModel = (LeaveTypeEmployeeGroupsClp)oldModel;
 
-		BaseModel<?> newModel = oldClpModel.getLeaveTypeApplicabilityRemoteModel();
+		BaseModel<?> newModel = oldClpModel.getLeaveTypeEmployeeGroupsRemoteModel();
 
 		newModel.setModelAttributes(oldClpModel.getModelAttributes());
 
@@ -749,6 +831,16 @@ public class ClpSerializer {
 		NewsClp oldClpModel = (NewsClp)oldModel;
 
 		BaseModel<?> newModel = oldClpModel.getNewsRemoteModel();
+
+		newModel.setModelAttributes(oldClpModel.getModelAttributes());
+
+		return newModel;
+	}
+
+	public static Object translateInputNewsAttachments(BaseModel<?> oldModel) {
+		NewsAttachmentsClp oldClpModel = (NewsAttachmentsClp)oldModel;
+
+		BaseModel<?> newModel = oldClpModel.getNewsAttachmentsRemoteModel();
 
 		newModel.setModelAttributes(oldClpModel.getModelAttributes());
 
@@ -875,6 +967,21 @@ public class ClpSerializer {
 		if (oldModelClassName.equals(
 					"com.rknowsys.eapp.hrm.model.impl.DocCategoryImpl")) {
 			return translateOutputDocCategory(oldModel);
+		}
+
+		if (oldModelClassName.equals(
+					"com.rknowsys.eapp.hrm.model.impl.DocumentCategoriesImpl")) {
+			return translateOutputDocumentCategories(oldModel);
+		}
+
+		if (oldModelClassName.equals(
+					"com.rknowsys.eapp.hrm.model.impl.DocumentsImpl")) {
+			return translateOutputDocuments(oldModel);
+		}
+
+		if (oldModelClassName.equals(
+					"com.rknowsys.eapp.hrm.model.impl.DocumentsAttachmentsImpl")) {
+			return translateOutputDocumentsAttachments(oldModel);
 		}
 
 		if (oldModelClassName.equals(
@@ -1013,8 +1120,18 @@ public class ClpSerializer {
 		}
 
 		if (oldModelClassName.equals(
+					"com.rknowsys.eapp.hrm.model.impl.LeaveAccrualImpl")) {
+			return translateOutputLeaveAccrual(oldModel);
+		}
+
+		if (oldModelClassName.equals(
 					"com.rknowsys.eapp.hrm.model.impl.LeaveCarryForwardPolicyImpl")) {
 			return translateOutputLeaveCarryForwardPolicy(oldModel);
+		}
+
+		if (oldModelClassName.equals(
+					"com.rknowsys.eapp.hrm.model.impl.LeaveGeneralImpl")) {
+			return translateOutputLeaveGeneral(oldModel);
 		}
 
 		if (oldModelClassName.equals(
@@ -1028,8 +1145,8 @@ public class ClpSerializer {
 		}
 
 		if (oldModelClassName.equals(
-					"com.rknowsys.eapp.hrm.model.impl.LeaveRuleImpl")) {
-			return translateOutputLeaveRule(oldModel);
+					"com.rknowsys.eapp.hrm.model.impl.LeaveRuleApplicableImpl")) {
+			return translateOutputLeaveRuleApplicable(oldModel);
 		}
 
 		if (oldModelClassName.equals(
@@ -1038,8 +1155,8 @@ public class ClpSerializer {
 		}
 
 		if (oldModelClassName.equals(
-					"com.rknowsys.eapp.hrm.model.impl.LeaveTypeApplicabilityImpl")) {
-			return translateOutputLeaveTypeApplicability(oldModel);
+					"com.rknowsys.eapp.hrm.model.impl.LeaveTypeEmployeeGroupsImpl")) {
+			return translateOutputLeaveTypeEmployeeGroups(oldModel);
 		}
 
 		if (oldModelClassName.equals(
@@ -1065,6 +1182,11 @@ public class ClpSerializer {
 		if (oldModelClassName.equals(
 					"com.rknowsys.eapp.hrm.model.impl.NewsImpl")) {
 			return translateOutputNews(oldModel);
+		}
+
+		if (oldModelClassName.equals(
+					"com.rknowsys.eapp.hrm.model.impl.NewsAttachmentsImpl")) {
+			return translateOutputNewsAttachments(oldModel);
 		}
 
 		if (oldModelClassName.equals(
@@ -1201,6 +1323,20 @@ public class ClpSerializer {
 			return new com.rknowsys.eapp.hrm.NoSuchDocCategoryException();
 		}
 
+		if (className.equals(
+					"com.rknowsys.eapp.hrm.NoSuchDocumentCategoriesException")) {
+			return new com.rknowsys.eapp.hrm.NoSuchDocumentCategoriesException();
+		}
+
+		if (className.equals("com.rknowsys.eapp.hrm.NoSuchDocumentsException")) {
+			return new com.rknowsys.eapp.hrm.NoSuchDocumentsException();
+		}
+
+		if (className.equals(
+					"com.rknowsys.eapp.hrm.NoSuchDocumentsAttachmentsException")) {
+			return new com.rknowsys.eapp.hrm.NoSuchDocumentsAttachmentsException();
+		}
+
 		if (className.equals("com.rknowsys.eapp.hrm.NoSuchEducationException")) {
 			return new com.rknowsys.eapp.hrm.NoSuchEducationException();
 		}
@@ -1323,8 +1459,18 @@ public class ClpSerializer {
 		}
 
 		if (className.equals(
+					"com.rknowsys.eapp.hrm.NoSuchLeaveAccrualException")) {
+			return new com.rknowsys.eapp.hrm.NoSuchLeaveAccrualException();
+		}
+
+		if (className.equals(
 					"com.rknowsys.eapp.hrm.NoSuchLeaveCarryForwardPolicyException")) {
 			return new com.rknowsys.eapp.hrm.NoSuchLeaveCarryForwardPolicyException();
+		}
+
+		if (className.equals(
+					"com.rknowsys.eapp.hrm.NoSuchLeaveGeneralException")) {
+			return new com.rknowsys.eapp.hrm.NoSuchLeaveGeneralException();
 		}
 
 		if (className.equals("com.rknowsys.eapp.hrm.NoSuchLeavePeriodException")) {
@@ -1336,8 +1482,9 @@ public class ClpSerializer {
 			return new com.rknowsys.eapp.hrm.NoSuchLeaveRestrictionException();
 		}
 
-		if (className.equals("com.rknowsys.eapp.hrm.NoSuchLeaveRuleException")) {
-			return new com.rknowsys.eapp.hrm.NoSuchLeaveRuleException();
+		if (className.equals(
+					"com.rknowsys.eapp.hrm.NoSuchLeaveRuleApplicableException")) {
+			return new com.rknowsys.eapp.hrm.NoSuchLeaveRuleApplicableException();
 		}
 
 		if (className.equals("com.rknowsys.eapp.hrm.NoSuchLeaveTypeException")) {
@@ -1345,8 +1492,8 @@ public class ClpSerializer {
 		}
 
 		if (className.equals(
-					"com.rknowsys.eapp.hrm.NoSuchLeaveTypeApplicabilityException")) {
-			return new com.rknowsys.eapp.hrm.NoSuchLeaveTypeApplicabilityException();
+					"com.rknowsys.eapp.hrm.NoSuchLeaveTypeEmployeeGroupsException")) {
+			return new com.rknowsys.eapp.hrm.NoSuchLeaveTypeEmployeeGroupsException();
 		}
 
 		if (className.equals("com.rknowsys.eapp.hrm.NoSuchLicenseException")) {
@@ -1367,6 +1514,11 @@ public class ClpSerializer {
 
 		if (className.equals("com.rknowsys.eapp.hrm.NoSuchNewsException")) {
 			return new com.rknowsys.eapp.hrm.NoSuchNewsException();
+		}
+
+		if (className.equals(
+					"com.rknowsys.eapp.hrm.NoSuchNewsAttachmentsException")) {
+			return new com.rknowsys.eapp.hrm.NoSuchNewsAttachmentsException();
 		}
 
 		if (className.equals(
@@ -1423,6 +1575,38 @@ public class ClpSerializer {
 		newModel.setModelAttributes(oldModel.getModelAttributes());
 
 		newModel.setDocCategoryRemoteModel(oldModel);
+
+		return newModel;
+	}
+
+	public static Object translateOutputDocumentCategories(
+		BaseModel<?> oldModel) {
+		DocumentCategoriesClp newModel = new DocumentCategoriesClp();
+
+		newModel.setModelAttributes(oldModel.getModelAttributes());
+
+		newModel.setDocumentCategoriesRemoteModel(oldModel);
+
+		return newModel;
+	}
+
+	public static Object translateOutputDocuments(BaseModel<?> oldModel) {
+		DocumentsClp newModel = new DocumentsClp();
+
+		newModel.setModelAttributes(oldModel.getModelAttributes());
+
+		newModel.setDocumentsRemoteModel(oldModel);
+
+		return newModel;
+	}
+
+	public static Object translateOutputDocumentsAttachments(
+		BaseModel<?> oldModel) {
+		DocumentsAttachmentsClp newModel = new DocumentsAttachmentsClp();
+
+		newModel.setModelAttributes(oldModel.getModelAttributes());
+
+		newModel.setDocumentsAttachmentsRemoteModel(oldModel);
 
 		return newModel;
 	}
@@ -1701,6 +1885,16 @@ public class ClpSerializer {
 		return newModel;
 	}
 
+	public static Object translateOutputLeaveAccrual(BaseModel<?> oldModel) {
+		LeaveAccrualClp newModel = new LeaveAccrualClp();
+
+		newModel.setModelAttributes(oldModel.getModelAttributes());
+
+		newModel.setLeaveAccrualRemoteModel(oldModel);
+
+		return newModel;
+	}
+
 	public static Object translateOutputLeaveCarryForwardPolicy(
 		BaseModel<?> oldModel) {
 		LeaveCarryForwardPolicyClp newModel = new LeaveCarryForwardPolicyClp();
@@ -1708,6 +1902,16 @@ public class ClpSerializer {
 		newModel.setModelAttributes(oldModel.getModelAttributes());
 
 		newModel.setLeaveCarryForwardPolicyRemoteModel(oldModel);
+
+		return newModel;
+	}
+
+	public static Object translateOutputLeaveGeneral(BaseModel<?> oldModel) {
+		LeaveGeneralClp newModel = new LeaveGeneralClp();
+
+		newModel.setModelAttributes(oldModel.getModelAttributes());
+
+		newModel.setLeaveGeneralRemoteModel(oldModel);
 
 		return newModel;
 	}
@@ -1732,12 +1936,13 @@ public class ClpSerializer {
 		return newModel;
 	}
 
-	public static Object translateOutputLeaveRule(BaseModel<?> oldModel) {
-		LeaveRuleClp newModel = new LeaveRuleClp();
+	public static Object translateOutputLeaveRuleApplicable(
+		BaseModel<?> oldModel) {
+		LeaveRuleApplicableClp newModel = new LeaveRuleApplicableClp();
 
 		newModel.setModelAttributes(oldModel.getModelAttributes());
 
-		newModel.setLeaveRuleRemoteModel(oldModel);
+		newModel.setLeaveRuleApplicableRemoteModel(oldModel);
 
 		return newModel;
 	}
@@ -1752,13 +1957,13 @@ public class ClpSerializer {
 		return newModel;
 	}
 
-	public static Object translateOutputLeaveTypeApplicability(
+	public static Object translateOutputLeaveTypeEmployeeGroups(
 		BaseModel<?> oldModel) {
-		LeaveTypeApplicabilityClp newModel = new LeaveTypeApplicabilityClp();
+		LeaveTypeEmployeeGroupsClp newModel = new LeaveTypeEmployeeGroupsClp();
 
 		newModel.setModelAttributes(oldModel.getModelAttributes());
 
-		newModel.setLeaveTypeApplicabilityRemoteModel(oldModel);
+		newModel.setLeaveTypeEmployeeGroupsRemoteModel(oldModel);
 
 		return newModel;
 	}
@@ -1809,6 +2014,16 @@ public class ClpSerializer {
 		newModel.setModelAttributes(oldModel.getModelAttributes());
 
 		newModel.setNewsRemoteModel(oldModel);
+
+		return newModel;
+	}
+
+	public static Object translateOutputNewsAttachments(BaseModel<?> oldModel) {
+		NewsAttachmentsClp newModel = new NewsAttachmentsClp();
+
+		newModel.setModelAttributes(oldModel.getModelAttributes());
+
+		newModel.setNewsAttachmentsRemoteModel(oldModel);
 
 		return newModel;
 	}

@@ -23,221 +23,301 @@
 		
 	</entity>
 	
+   <entity name="LeaveType" table="leave_type" data-source="hrmDataSource"
+        local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+        tx-manager="hrmTransactionManager">
+
+        <!-- PK fields -->
+
+        <column name="leaveTypeId" type="long" primary="true" />
+
+        <!-- Audit fields -->
+        <column name="companyId" type="long" />
+        <column name="groupId" type="long" />
+        <column name="createDate" type="Date" />
+        <column name="modifiedDate" type="Date" />
+        <column name="userId" type="long" />
+
+        <!-- Other fields -->
+        <column name="nationalityId" type="long" />
+        <column name="leaveTypeName" type="String" />
+        <column name="isSituational" type="boolean" />
+
+        <!-- Order -->
+
+        <!-- Finder methods -->
+        <finder name="GroupId" return-type="Collection">
+            <finder-column name="groupId" />
+        </finder>
+        <finder name="nationalityId" return-type="Collection">
+            <finder-column name="nationalityId" />
+        </finder>
+
+    </entity>
+
+    <entity name="LeaveGeneral" table="leave_general" data-source="hrmDataSource"
+        local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+        tx-manager="hrmTransactionManager">
+
+        <!-- PK fields -->
+
+        <column name="leaveGeneralId" type="long" primary="true" />
+
+        <!-- Audit fields -->
+        <column name="companyId" type="long" />
+        <column name="groupId" type="long" />
+        <column name="createDate" type="Date" />
+        <column name="modifiedDate" type="Date" />
+        <column name="userId" type="long" />
+
+        <!-- Other fields -->
+        <column name="leaveTypeId" type="long" />
+        <column name="leavePeriodTypeId" type="int" />
+        <column name="startMonth" type="int" />
+        <column name="startDayOfMonth" type="int" />
+        <column name="duration" type="String" />
+        <column name="ifEmployeesCanApply" type="boolean" />
+        <column name="ifAdminCanAssign" type="boolean" />
+        <column name="ifAdminCanManageEntitlements" type="boolean" />
+        <column name="ifLeaveAccruable" type="boolean" />
+        <column name="ifCarryForwardable" type="boolean" />
+        
+        <column name="showProjectBalance" type="boolean"></column>
+        <column name="enableAttachment" type="boolean"></column>
+        <column name="isAttachmentMandatory" type="boolean"></column>
+
+        <!-- Order -->
+
+        <!-- Finder methods -->
+        <finder name="GroupId" return-type="Collection">
+            <finder-column name="groupId" />
+        </finder>
+        <finder name="LeaveTypeId" return-type="Collection">
+            <finder-column name="leaveTypeId" />
+        </finder>
+    </entity>
+
+        <entity name="LeaveRuleApplicable" table="leave_rule_applicable" data-source="hrmDataSource"
+        local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+        tx-manager="hrmTransactionManager">
+
+        <!-- PK fields -->
+        <column name="leaveRuleApplicableId" type="long" primary="true" />
+
+        <!-- Audit fields -->
+        <column name="companyId" type="long" />
+        <column name="groupId" type="long" />
+        <column name="createDate" type="Date" />
+        <column name="modifiedDate" type="Date" />
+        <column name="userId" type="long" />
+
+        <!-- Other fields -->
+        <column name="leaveTypeId" type="long"/>
+        <column name="forFemale" type="boolean"/>
+        <column name="forMale" type="boolean"/>
+        <column name="forYearsOfService" type="boolean"/>
+        <column name="fromYears" type="String"/>
+        <column name="toYears" type="String"/>
+        <column name="forJobTitles" type="boolean"/>
+        <column name="forJobCategories" type="boolean"/>
+        <column name="forEmploymentStatus" type="boolean"/>
+        <column name="forGender" type="boolean"/>
+        
+
+        <!-- Order -->
+        <!-- Relationship fields -->
+        <column name="jobCategories" type="Collection" entity="JobCategory" mapping-table="lra_jobCategories"/>
+        <column name="jobTitles" type="Collection" entity="JobTitle" mapping-table="lra_jobTitles"/>
+        <column name="employmentStatus" type="Collection" entity="EmploymentStatus" mapping-table="lra_employmentStatus"/>
+        <!-- Finder methods -->
+        <finder name="GroupId" return-type="Collection">
+            <finder-column name="groupId" />
+        </finder>
+        <finder name="LeaveTypeId" return-type="Collection">
+            <finder-column name="leaveTypeId" />
+        </finder>
+
+    </entity>
+    <entity name="LeaveTypeEmployeeGroups" table="leave_type_employee_groups" data-source="hrmDataSource"
+        local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+        tx-manager="hrmTransactionManager">
+
+        <!-- PK fields -->
+        <column name="leaveTypeEmployeeGroupId" type="long" primary="true" />
+
+        <!-- Audit fields -->
+        <column name="companyId" type="long" />
+        <column name="groupId" type="long" />
+        <column name="createDate" type="Date" />
+        <column name="modifiedDate" type="Date" />
+        <column name="userId" type="long" />
+
+        <!-- Other fields -->
+        <column name="leaveTypeId" type="long"/>
+        <column name="groupName" type="String"/>
+        <column name="forJobTitles" type="boolean"/>
+        <column name="forJobCategories" type="boolean"/>
+        <column name="forEmploymentStatus" type="boolean"/>
+        <column name="forGender" type="boolean"/>
+         <column name="forFemale" type="boolean"/>
+        <column name="forMale" type="boolean"/>
+		 <column name="forYearsOfService" type="boolean"/>
+        <column name="fromYears" type="String"/>
+        <column name="toYears" type="String"/>
+        <!-- Order -->
+        <!-- Relationship fields -->
+        <!-- Finder methods -->
+        <finder name="GroupId" return-type="Collection">
+            <finder-column name="groupId" />
+        </finder>
+        <finder name="LeaveTypeId" return-type="Collection">
+            <finder-column name="leaveTypeId" />
+        </finder>
+
+    </entity>
+    
+    
+    
+    <entity name="LeaveAccrual" table="leave_accrual" data-source="hrmDataSource"
+        local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+        tx-manager="hrmTransactionManager">
+    <!-- PK fields -->
+    <column name="leaveAccrualId" type="long" primary="true"></column>
+    <!-- Audit fields -->
+    <column name="companyId" type="long" />
+    <column name="groupId" type="long" />
+    <column name="createDate" type="Date" />
+    <column name="modifiedDate" type="Date" />
+    <column name="userId" type="long" />
+
+        <!-- Other fields -->
+    <column name="leaveTypeId" type="long" />
+    <column name="accrualFrequency" type="String"></column>
+    <column name="accrueEvery" type="int"></column>
+    <column name="dayOfCredit" type="int"></column>
+    <column name="accrualStartsOn" type="String"></column>
+    <column name="monthOfCredit" type="int"></column>
+    <column name="accrualValidFrom" type="String"></column>
+    <column name="firstAccrual" type="String"></column>
+    <!-- Order -->
+
+        <!-- Finder methods -->
+        <finder name="GroupId" return-type="Collection">
+            <finder-column name="groupId" />
+        </finder>
+        <finder name="LeaveTypeId" return-type="LeaveAccrual">
+            <finder-column name="leaveTypeId" />
+        </finder>
+    </entity>
+    <entity name="LeaveRestriction" table="leave_restriction" data-source="hrmDataSource"
+        local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+        tx-manager="hrmTransactionManager">
+
+        <!-- PK fields -->
+        <column name="leaveRestrictionId" type="long" primary="true" />
+
+        <!-- Audit fields -->
+        <column name="companyId" type="long" />
+        <column name="groupId" type="long" />
+        <column name="createDate" type="Date" />
+        <column name="modifiedDate" type="Date" />
+        <column name="userId" type="long" />
+
+        <!-- Other fields -->
+        <column name="leaveTypeId" type="long" />
+        <column name="cannotExceedBalance" type="boolean" />
+        <column name="cantExceedBalForRoleIds" type="String"></column>
+        <column name="cannotApplyForPartialDay" type="boolean" />
+        <column name="cantApplyPartialDayForRoleIds" type="String" />
+        <column name="termsQuestion" type="String" />
+        <column name="termsQsnForRoleIds" type="String"></column>
+        <column name="errorTextIfTermsDeclined" type="String" />
+        <column name="minimumServicePeriod" type="String" />
+        <column name="minServicePeriodForRoleIds" type="String"></column>
+        <column name="maxConsecutiveLeaves" type="String" />
+        <column name="maxConsecLeavesForRoleIds" type="String"></column>
+        <column name="maxSmallChildAgeApplicable" type="String" />
+        <column name="maxSmallChildAgeForRoleIds" type="String"></column>
+
+        <!-- Order -->
+
+        <!-- Finder methods -->
+        <finder name="GroupId" return-type="Collection">
+            <finder-column name="groupId" />
+        </finder>
+        <finder name="LeaveTypeId" return-type="Collection">
+            <finder-column name="leaveTypeId" />
+        </finder>
+    </entity>
+
+    <entity name="LeaveCarryForwardPolicy" table="leave_carry_forward_policy" data-source="hrmDataSource"
+        local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+        tx-manager="hrmTransactionManager">
+
+        <!-- PK fields -->
+        <column name="leaveCarryForwardPolicyId" type="long" primary="true" />
+
+        <!-- Audit fields -->
+        <column name="companyId" type="long" />
+        <column name="groupId" type="long" />
+        <column name="createDate" type="Date" />
+        <column name="modifiedDate" type="Date" />
+        <column name="userId" type="long" />
+
+        <!-- Other fields -->
+        <column name="leaveTypeId" type="long" />
+        <column name="expiryDuration" type="int" />
+        <column name="expiryDurationUOM" type="String" />
+        <column name="maxCarryForwardLimit" type="String" />
+        <!-- columns added -->
+        <column name="isMaxCarryForwardLimitApplicable" type="boolean" />
+        <column name="isNegetiveValueCarryForwardble" type="boolean"></column>
+        <column name="specifiedAmountToCarryForward" type="int"></column>
+
+        <!-- Order -->
+
+        <!-- Finder methods -->
+        <finder name="GroupId" return-type="Collection">
+            <finder-column name="groupId" />
+        </finder>
+        <finder name="LeaveTypeId" return-type="Collection">
+            <finder-column name="leaveTypeId" />
+        </finder>
+    </entity>
+
+
+    
+    <entity name="LeavePeriod" table="leave_period" data-source="hrmDataSource"
+        local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+        tx-manager="hrmTransactionManager">
+
+        <!-- PK fields -->
+
+        <column name="leavePeriodId" type="long" primary="true" />
+
+        <!-- Audit fields -->
+
+        <column name="companyId" type="long" />
+        <column name="groupId" type="long" />
+        <column name="createDate" type="Date" />
+        <column name="modifiedDate" type="Date" />
+        <column name="userId" type="long" />
+        <!-- Other fields -->
+
+        <column name="startMonth" type="int" />
+        <column name="startDate" type="int" />
+        <column name="endDate" type="String" />
+
+        <!-- Order -->
+
+        <!-- Finder methods -->
+
+        <finder name="GroupId" return-type="Collection">
+            <finder-column name="groupId" />
+        </finder>
+    </entity>	
 	
-	
-<entity name="LeaveType" table="leave_type" data-source="hrmDataSource"
-		local-service="true" remote-service="false" session-factory="hrmSessionFactory"
-		tx-manager="hrmTransactionManager">
 
-		<!-- PK fields -->
-
-		<column name="leaveTypeId" type="long" primary="true" />
-
-		<!-- Audit fields -->
-		<column name="companyId" type="long" />
-		<column name="groupId" type="long" />
-		<column name="createDate" type="Date" />
-		<column name="modifiedDate" type="Date" />
-		<column name="userId" type="long" />
-
-		<!-- Other fields -->
-		<column name="nationalityId" type="long" />
-		<column name="leaveTypeName" type="String" />
-		<column name="isSituational" type="boolean" />
-
-		<!-- Order -->
-
-		<!-- Finder methods -->
-		<finder name="GroupId" return-type="Collection">
-			<finder-column name="groupId" />
-		</finder>
-		<finder name="nationalityId" return-type="Collection">
-			<finder-column name="nationalityId" />
-		</finder>
-
-	</entity>
-
-	<entity name="LeaveGeneral" table="leave_general" data-source="hrmDataSource"
-		local-service="true" remote-service="false" session-factory="hrmSessionFactory"
-		tx-manager="hrmTransactionManager">
-
-		<!-- PK fields -->
-
-		<column name="leaveGeneralId" type="long" primary="true" />
-
-		<!-- Audit fields -->
-		<column name="companyId" type="long" />
-		<column name="groupId" type="long" />
-		<column name="createDate" type="Date" />
-		<column name="modifiedDate" type="Date" />
-		<column name="userId" type="long" />
-
-		<!-- Other fields -->
-		<column name="leaveTypeId" type="long" />
-		<column name="leavePeriodTypeId" type="int" />
-		<column name="startMonth" type="int" />
-		<column name="startDayOfMonth" type="int" />
-		<column name="duration" type="String" />
-		<column name="ifEmployeesCanApply" type="boolean" />
-		<column name="ifAdminCanAssign" type="boolean" />
-		<column name="ifAdminCanManageEntitlements" type="boolean" />
-		<column name="ifLeaveAccruable" type="boolean" />
-		<column name="ifCarryForwardable" type="boolean" />
-		
-		<column name="showProjectBalance" type="boolean"></column>
-		<column name="enableAttachment" type="boolean"></column>
-		<column name="isAttachmentMandatory" type="boolean"></column>
-
-		<!-- Order -->
-
-		<!-- Finder methods -->
-		<finder name="GroupId" return-type="Collection">
-			<finder-column name="groupId" />
-		</finder>
-		<finder name="LeaveTypeId" return-type="Collection">
-			<finder-column name="leaveTypeId" />
-		</finder>
-	</entity>
-
-		<entity name="LeaveRuleApplicable" table="leave_rule_applicable" data-source="hrmDataSource"
-		local-service="true" remote-service="false" session-factory="hrmSessionFactory"
-		tx-manager="hrmTransactionManager">
-
-		<!-- PK fields -->
-		<column name="leaveRuleApplicableId" type="long" primary="true" />
-
-		<!-- Audit fields -->
-		<column name="companyId" type="long" />
-		<column name="groupId" type="long" />
-		<column name="createDate" type="Date" />
-		<column name="modifiedDate" type="Date" />
-		<column name="userId" type="long" />
-
-		<!-- Other fields -->
-		<column name="leaveTypeId" type="long" />
-		<column name="forFemale" type="boolean"></column>
-		<column name="forMale" type="boolean"></column>
-		<column name="forYearsOfService" type="boolean" />
-		<column name="fromYears" type="String" />
-		<column name="toYears" type="String" />
-		
-
-		<!-- Order -->
-		<!-- Relationship fields -->
-		<column name="jobCategories" type="Collection" entity="JobCategory" mapping-table="lra_jobCategories"/>
-		<column name="jobTitles" type="Collection" entity="JobTitle" mapping-table="lra_jobTitles"/>
-		<column name="employmentStatus" type="Collection" entity="EmploymentStatus" mapping-table="lra_employmentStatus"/>
-		<!-- Finder methods -->
-		<finder name="GroupId" return-type="Collection">
-			<finder-column name="groupId" />
-		</finder>
-		<finder name="LeaveTypeId" return-type="Collection">
-			<finder-column name="leaveTypeId" />
-		</finder>
-
-	</entity>
-	<entity name="LeaveRestriction" table="leave_restriction" data-source="hrmDataSource"
-		local-service="true" remote-service="false" session-factory="hrmSessionFactory"
-		tx-manager="hrmTransactionManager">
-
-		<!-- PK fields -->
-		<column name="leaveRestrictionId" type="long" primary="true" />
-
-		<!-- Audit fields -->
-		<column name="companyId" type="long" />
-		<column name="groupId" type="long" />
-		<column name="createDate" type="Date" />
-		<column name="modifiedDate" type="Date" />
-		<column name="userId" type="long" />
-
-		<!-- Other fields -->
-		<column name="leaveTypeId" type="long" />
-		<column name="cannotExceedBalance" type="boolean" />
-		<column name="cannotApplyForPartialDay" type="boolean" />
-		<column name="ifATermsQuestion" type="boolean" />
-		<column name="termsQuestion" type="String" />
-		<column name="errorTextIfTermsDeclined" type="String" />
-		<column name="isMinimumServicePeriodApplicable" type="boolean" />
-		<column name="minimumServicePeriod" type="String" />
-		<column name="isMaxConsecutiveLeavesApplicable" type="boolean" />
-		<column name="maxConsecutiveLeaves" type="String" />
-		<column name="isSmallChildCriterionApplicable" type="boolean" />
-		<column name="maxSmallChildAgeApplicable" type="String" />
-
-		<!-- Order -->
-
-		<!-- Finder methods -->
-		<finder name="GroupId" return-type="Collection">
-			<finder-column name="groupId" />
-		</finder>
-		<finder name="LeaveTypeId" return-type="Collection">
-			<finder-column name="leaveTypeId" />
-		</finder>
-	</entity>
-
-	<entity name="LeaveCarryForwardPolicy" table="leave_carry_forward_policy" data-source="hrmDataSource"
-		local-service="true" remote-service="false" session-factory="hrmSessionFactory"
-		tx-manager="hrmTransactionManager">
-
-		<!-- PK fields -->
-		<column name="leaveCarryForwardPolicyId" type="long" primary="true" />
-
-		<!-- Audit fields -->
-		<column name="companyId" type="long" />
-		<column name="groupId" type="long" />
-		<column name="createDate" type="Date" />
-		<column name="modifiedDate" type="Date" />
-		<column name="userId" type="long" />
-
-		<!-- Other fields -->
-		<column name="leaveTypeId" type="long" />
-		<column name="expiryDuration" type="int" />
-		<column name="expiryDurationUOM" type="String" />
-		<column name="isMaxCarryForwardLimitApplicable" type="boolean" />
-		<column name="maxCarryForwardLimit" type="String" />
-
-		<!-- Order -->
-
-		<!-- Finder methods -->
-		<finder name="GroupId" return-type="Collection">
-			<finder-column name="groupId" />
-		</finder>
-		<finder name="LeaveTypeId" return-type="Collection">
-			<finder-column name="leaveTypeId" />
-		</finder>
-	</entity>
-
-
-	
-	<entity name="LeavePeriod" table="leave_period" data-source="hrmDataSource"
-		local-service="true" remote-service="false" session-factory="hrmSessionFactory"
-		tx-manager="hrmTransactionManager">
-
-		<!-- PK fields -->
-
-		<column name="leavePeriodId" type="long" primary="true" />
-
-		<!-- Audit fields -->
-
-		<column name="companyId" type="long" />
-		<column name="groupId" type="long" />
-		<column name="createDate" type="Date" />
-		<column name="modifiedDate" type="Date" />
-		<column name="userId" type="long" />
-		<!-- Other fields -->
-
-		<column name="startMonth" type="int" />
-		<column name="startDate" type="int" />
-		<column name="endDate" type="String" />
-
-		<!-- Order -->
-
-		<!-- Finder methods -->
-
-		<finder name="GroupId" return-type="Collection">
-			<finder-column name="groupId" />
-		</finder>
-	</entity>
  
 
 	<entity name="Interview" table="interview" data-source="hrmDataSource"
@@ -288,37 +368,6 @@
 
 		<column name="docName" type="String" />
 
-
-		<!-- Order -->
-
-		<!-- Finder methods -->
-
-		<finder name="GroupId" return-type="Collection">
-			<finder-column name="groupId" />
-		</finder>
-	</entity>
-
-	<entity name="News" table="news" data-source="hrmDataSource"
-		local-service="true" remote-service="false" session-factory="hrmSessionFactory"
-		tx-manager="hrmTransactionManager">
-
-		<!-- PK fields -->
-
-		<column name="newsId" type="long" primary="true" />
-
-		<!-- Audit fields -->
-
-		<column name="companyId" type="long" />
-		<column name="groupId" type="long" />
-		<column name="createDate" type="Date" />
-		<column name="modifiedDate" type="Date" />
-		<column name="userId" type="long" />
-		<!-- Other fields -->
-
-		<column name="topic" type="String" />
-		<column name="description" type="String" />
-		<column name="publishTo" type="String" />
-		<column name="publishDate" type="Date" />
 
 		<!-- Order -->
 
@@ -502,8 +551,9 @@
 		<column name="userId" type="long" />
 		<!-- Other fields -->
 		<column name="componentName" type="String" />
-		<column name="type" type="boolean" />
-		<column name="onlyCTC" type="boolean" />
+		<column name="type" type="String" />
+		<column name="totalPayable" type="String"/>
+		<column name="costToCompany" type="String"/>
 		<column name="valueType" type="String" />
 		<!-- Order -->
 		<!-- Finder methods -->
@@ -957,7 +1007,7 @@
 		<column name="issuedDate" type="Date" />		
 		<column name="expiryDate" type="Date" />		
 		<column name="eligibleStatus" type="String" />
-		<column name="issuedBy" type="String" />
+		<column name="issuedBy" type="long" />
 		<column name="eligibleReviewDate" type="Date" />
 		<column name="comments" type="String" />
 		<!-- Order -->
@@ -990,7 +1040,7 @@
 		<column name="modifiedDate" type="Date"></column>
 		<!-- Other fields -->
 		<column name="reporterEmployeeId" type="long"></column>
-		<column name="reportingMethod" type="long"></column>
+		<column name="reportingMethod" type="String"></column>
 	</entity>
 	<entity name="EmpSubordinate" local-service="true" remote-service="false"
 		human-name="EmpSubordinate" table="emp_subordinate" data-source="hrmDataSource"
@@ -1008,7 +1058,7 @@
 		<column name="modifiedDate" type="Date"></column>
 		<!-- Other fields -->
 		<column name="reporterEmployeeId" type="long"></column>
-		<column name="reportingMethod" type="long"></column>
+		<column name="reportingMethod" type="String"></column>
 	</entity>
 	
 	<entity name="EmpWorkExp" local-service="true"
@@ -1241,11 +1291,9 @@
 		<column name="shiftId" type="long"></column><!-- we are using emp_workshift table for this -->
 		<column name="comments" type="String"></column>
 		
-		
+		<column name="isCurrentJob" type="boolean"></column>
 		<column name="employmentContractStartDate" type="Date"></column>
 		<column name="employmentContractEndDate" type="Date"></column>
-		<column name="contractDetails" type="Blob"></column>
-		
 		<!-- Order -->
 		<!-- Finder methods -->
 		<finder name="GroupId" return-type="Collection">
@@ -1380,10 +1428,12 @@
 		<!-- Audit fields -->
 		<!-- Other fields -->
 		<column name="attachmentTypeId" type="long"></column><!-- Entity Id -->
+		<column name="uuid" type="String"></column>
+		<column name="relatedTo" type="String"></column>
+		<column name="userName" type="String"></column>
 		<column name="fileName" type="String"></column>
 		<column name="fileSize" type="long"></column>
 		<column name="fileType" type="String"></column>
-		<column name="file" type="Blob"></column>
 		<column name="comment" type="String"></column>
 		
 		<finder name="empAttachmentId" return-type="Collection">
@@ -1416,6 +1466,7 @@
 		
 		<column name="companyId" type="long"></column>
 		<column name="userId" type="long"></column>
+		<column name="groupId" type="long"></column>
 		<column name="createDate" type="Date"></column>
 		<column name="modifiedDate" type="Date"></column>
 		
@@ -1424,7 +1475,7 @@
 		<column name="title" type="String"></column>
 		<column name="employmentstatus" type="String"></column>
 		<column name="name" type="String"></column>
-		<column name="supervisor" type="String"></column>		
+		<column name="supervisor" type="long"></column>		
 		
 		
 		
@@ -1517,4 +1568,130 @@
 
 
 		</entity>
+	
+	 <entity name="DocumentCategories" table="document_categories" data-source="hrmDataSource"
+        local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+        tx-manager="hrmTransactionManager">
+        <!-- PK fields -->
+        <column  name="documentcategoryId" type="long" primary="true"/>
+        <!-- Audit fields -->
+        <column name="companyId" type="long" />
+        <column name="groupId" type="long" />
+        <column name="userId" type="long" />
+        <column name="createDate" type="Date" />
+        <column name="modifiedDate" type="Date" />
+        <!-- Other fields -->
+        <column name="documentCategory" type="String" />
+        <!-- Order -->
+        <!-- Finder methods -->
+        <finder name="GroupId" return-type="Collection">
+            <finder-column name="groupId" />
+        </finder>
+    </entity>
+    
+    <entity name="Documents" table="documents" data-source="hrmDataSource"
+		local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+		tx-manager="hrmTransactionManager">
+		<!-- PK fields -->
+		<column name="documentId" type="long" primary="true" />
+		<!-- Audit fields -->
+		<column name="companyId" type="long" />
+		<column name="groupId" type="long" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+		<column name="userId" type="long" />
+		<!-- Other fields -->
+		<column name="topic" type="String" />
+		<column name="category" type="String" />
+		<column name="description" type="String"/>
+		<column name="publishDate" type="Date" />
+		<column name="status" type="boolean" />
+		<column name="admin" type="boolean" />
+		<column name="supervisor" type="boolean" />
+		<column name="allEmployees" type="boolean" />
+		<column name="publishedTo" type="String" />
+		<!-- Order -->
+		
+		
+	</entity>
+	
+	<entity name="DocumentsAttachments" table="documents_attachments" data-source="hrmDataSource"
+		local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+		tx-manager="hrmTransactionManager">
+		<!-- PK fields -->
+		<column name="documentAttachmentId" type="long" primary="true" />
+		<!-- Audit fields -->
+		<column name="companyId" type="long" />
+		<column name="groupId" type="long" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+		<column name="userId" type="long" />
+		<!-- Other fields -->
+		
+		<column name="attachmentTypeId" type="long"></column>
+		<column name="documentId" type="long"></column>
+		<column name="description" type="String"/>
+		<column name="uuid" type="String"></column>
+		
+		<column name="fileName" type="String"></column>
+		<column name="fileSize" type="long"></column>
+		<column name="fileType" type="String"></column>
+		<!-- Order -->
+		
+		
+	</entity>
+	
+	
+	 <entity name="News" table="news" data-source="hrmDataSource"
+		local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+		tx-manager="hrmTransactionManager">
+		<!-- PK fields -->
+		<column name="newsId" type="long" primary="true" />
+		<!-- Audit fields -->
+		<column name="companyId" type="long" />
+		<column name="groupId" type="long" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+		<column name="userId" type="long" />
+		<!-- Other fields -->
+		<column name="topic" type="String" />
+		<column name="description" type="String"/>
+		<column name="publishDate" type="Date" />
+		<column name="status" type="boolean" />
+		<column name="admin" type="boolean" />
+		<column name="supervisor" type="boolean" />
+		<column name="allEmployees" type="boolean" />
+		<column name="publishedTo" type="String" />
+		<!-- Order -->
+		
+		
+	</entity>
+	
+	<entity name="NewsAttachments" table="news_attachments" data-source="hrmDataSource"
+		local-service="true" remote-service="false" session-factory="hrmSessionFactory"
+		tx-manager="hrmTransactionManager">
+		<!-- PK fields -->
+		<column name="newsAttachmentId" type="long" primary="true" />
+		<!-- Audit fields -->
+		<column name="companyId" type="long" />
+		<column name="groupId" type="long" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+		<column name="userId" type="long" />
+		<!-- Other fields -->
+		
+		<column name="attachmentTypeId" type="long"></column>
+		<column name="newsId" type="long"></column>
+		<column name="description" type="String"/>
+		<column name="uuid" type="String"></column>
+		
+		<column name="fileName" type="String"></column>
+		<column name="fileSize" type="long"></column>
+		<column name="fileType" type="String"></column>
+		<!-- Order -->
+		
+		
+	</entity>
+		
+		
 </service-builder>

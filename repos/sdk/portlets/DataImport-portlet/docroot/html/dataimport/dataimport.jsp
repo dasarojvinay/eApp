@@ -2,14 +2,12 @@
     pageEncoding="ISO-8859-1"%>
 <%@ include file="/html/dataimport/init.jsp"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
 <portlet:actionURL var="dataimportURL" name="saveDataImport">
 </portlet:actionURL>
 <portlet:resourceURL var="downloadFile" id="fileDownload">
 </portlet:resourceURL>
-<head>
+
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>DataImport</title>
 <style type="text/css">
 var uploadSize=true;
                 
@@ -30,8 +28,7 @@ var uploadSize=true;
               }
          }    
 </style>
-</head>
-<body>
+
 <aui:form id = "copyUpload" action="<%=dataimportURL %>" method="post" enctype="multipart/form-data">
 <div class="row-fluid">
 <aui:input name="fileName" type="file" label="Select File" inlineLabel="left"><aui:validator name="required" errorMessage="Please upload file"/>
@@ -51,5 +48,3 @@ var uploadSize=true;
 <br/><br/>
 <aui:button type="submit" value="Upload"></aui:button>
 </aui:form>
-</body>
-</html>

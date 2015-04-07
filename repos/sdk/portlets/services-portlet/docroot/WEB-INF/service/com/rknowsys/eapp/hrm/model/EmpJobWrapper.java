@@ -17,8 +17,6 @@ package com.rknowsys.eapp.hrm.model;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
-import java.sql.Blob;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,11 +67,11 @@ public class EmpJobWrapper implements EmpJob, ModelWrapper<EmpJob> {
 		attributes.put("effectiveDate", getEffectiveDate());
 		attributes.put("shiftId", getShiftId());
 		attributes.put("comments", getComments());
+		attributes.put("isCurrentJob", getIsCurrentJob());
 		attributes.put("employmentContractStartDate",
 			getEmploymentContractStartDate());
 		attributes.put("employmentContractEndDate",
 			getEmploymentContractEndDate());
-		attributes.put("contractDetails", getContractDetails());
 
 		return attributes;
 	}
@@ -188,6 +186,12 @@ public class EmpJobWrapper implements EmpJob, ModelWrapper<EmpJob> {
 			setComments(comments);
 		}
 
+		Boolean isCurrentJob = (Boolean)attributes.get("isCurrentJob");
+
+		if (isCurrentJob != null) {
+			setIsCurrentJob(isCurrentJob);
+		}
+
 		Date employmentContractStartDate = (Date)attributes.get(
 				"employmentContractStartDate");
 
@@ -200,12 +204,6 @@ public class EmpJobWrapper implements EmpJob, ModelWrapper<EmpJob> {
 
 		if (employmentContractEndDate != null) {
 			setEmploymentContractEndDate(employmentContractEndDate);
-		}
-
-		Blob contractDetails = (Blob)attributes.get("contractDetails");
-
-		if (contractDetails != null) {
-			setContractDetails(contractDetails);
 		}
 	}
 
@@ -612,6 +610,36 @@ public class EmpJobWrapper implements EmpJob, ModelWrapper<EmpJob> {
 	}
 
 	/**
+	* Returns the is current job of this emp job.
+	*
+	* @return the is current job of this emp job
+	*/
+	@Override
+	public boolean getIsCurrentJob() {
+		return _empJob.getIsCurrentJob();
+	}
+
+	/**
+	* Returns <code>true</code> if this emp job is is current job.
+	*
+	* @return <code>true</code> if this emp job is is current job; <code>false</code> otherwise
+	*/
+	@Override
+	public boolean isIsCurrentJob() {
+		return _empJob.isIsCurrentJob();
+	}
+
+	/**
+	* Sets whether this emp job is is current job.
+	*
+	* @param isCurrentJob the is current job of this emp job
+	*/
+	@Override
+	public void setIsCurrentJob(boolean isCurrentJob) {
+		_empJob.setIsCurrentJob(isCurrentJob);
+	}
+
+	/**
 	* Returns the employment contract start date of this emp job.
 	*
 	* @return the employment contract start date of this emp job
@@ -651,26 +679,6 @@ public class EmpJobWrapper implements EmpJob, ModelWrapper<EmpJob> {
 	public void setEmploymentContractEndDate(
 		java.util.Date employmentContractEndDate) {
 		_empJob.setEmploymentContractEndDate(employmentContractEndDate);
-	}
-
-	/**
-	* Returns the contract details of this emp job.
-	*
-	* @return the contract details of this emp job
-	*/
-	@Override
-	public java.sql.Blob getContractDetails() {
-		return _empJob.getContractDetails();
-	}
-
-	/**
-	* Sets the contract details of this emp job.
-	*
-	* @param contractDetails the contract details of this emp job
-	*/
-	@Override
-	public void setContractDetails(java.sql.Blob contractDetails) {
-		_empJob.setContractDetails(contractDetails);
 	}
 
 	@Override

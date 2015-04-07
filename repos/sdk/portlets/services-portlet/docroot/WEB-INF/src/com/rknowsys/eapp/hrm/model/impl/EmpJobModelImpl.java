@@ -29,13 +29,10 @@ import com.liferay.portlet.expando.model.ExpandoBridge;
 import com.liferay.portlet.expando.util.ExpandoBridgeFactoryUtil;
 
 import com.rknowsys.eapp.hrm.model.EmpJob;
-import com.rknowsys.eapp.hrm.model.EmpJobContractDetailsBlobModel;
 import com.rknowsys.eapp.hrm.model.EmpJobModel;
-import com.rknowsys.eapp.hrm.service.EmpJobLocalServiceUtil;
 
 import java.io.Serializable;
 
-import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Date;
@@ -82,11 +79,11 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 			{ "effectiveDate", Types.TIMESTAMP },
 			{ "shiftId", Types.BIGINT },
 			{ "comments", Types.VARCHAR },
+			{ "isCurrentJob", Types.BOOLEAN },
 			{ "employmentContractStartDate", Types.TIMESTAMP },
-			{ "employmentContractEndDate", Types.TIMESTAMP },
-			{ "contractDetails", Types.BLOB }
+			{ "employmentContractEndDate", Types.TIMESTAMP }
 		};
-	public static final String TABLE_SQL_CREATE = "create table emp_job (empJobId LONG not null primary key,employeeId LONG,groupId LONG,companyId LONG,createDate DATE null,modifiedDate DATE null,userId LONG,joinedDate DATE null,probationEndDate DATE null,permanentDate DATE null,jobTitleId LONG,employmentStatusId LONG,jobCategoryId LONG,subUnitId LONG,locationId LONG,effectiveDate DATE null,shiftId LONG,comments VARCHAR(75) null,employmentContractStartDate DATE null,employmentContractEndDate DATE null,contractDetails BLOB)";
+	public static final String TABLE_SQL_CREATE = "create table emp_job (empJobId LONG not null primary key,employeeId LONG,groupId LONG,companyId LONG,createDate DATE null,modifiedDate DATE null,userId LONG,joinedDate DATE null,probationEndDate DATE null,permanentDate DATE null,jobTitleId LONG,employmentStatusId LONG,jobCategoryId LONG,subUnitId LONG,locationId LONG,effectiveDate DATE null,shiftId LONG,comments VARCHAR(75) null,isCurrentJob BOOLEAN,employmentContractStartDate DATE null,employmentContractEndDate DATE null)";
 	public static final String TABLE_SQL_DROP = "drop table emp_job";
 	public static final String ORDER_BY_JPQL = " ORDER BY empJob.empJobId ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY emp_job.empJobId ASC";
@@ -163,11 +160,11 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 		attributes.put("effectiveDate", getEffectiveDate());
 		attributes.put("shiftId", getShiftId());
 		attributes.put("comments", getComments());
+		attributes.put("isCurrentJob", getIsCurrentJob());
 		attributes.put("employmentContractStartDate",
 			getEmploymentContractStartDate());
 		attributes.put("employmentContractEndDate",
 			getEmploymentContractEndDate());
-		attributes.put("contractDetails", getContractDetails());
 
 		return attributes;
 	}
@@ -282,6 +279,12 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 			setComments(comments);
 		}
 
+		Boolean isCurrentJob = (Boolean)attributes.get("isCurrentJob");
+
+		if (isCurrentJob != null) {
+			setIsCurrentJob(isCurrentJob);
+		}
+
 		Date employmentContractStartDate = (Date)attributes.get(
 				"employmentContractStartDate");
 
@@ -294,12 +297,6 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 
 		if (employmentContractEndDate != null) {
 			setEmploymentContractEndDate(employmentContractEndDate);
-		}
-
-		Blob contractDetails = (Blob)attributes.get("contractDetails");
-
-		if (contractDetails != null) {
-			setContractDetails(contractDetails);
 		}
 	}
 
@@ -523,6 +520,21 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 	}
 
 	@Override
+	public boolean getIsCurrentJob() {
+		return _isCurrentJob;
+	}
+
+	@Override
+	public boolean isIsCurrentJob() {
+		return _isCurrentJob;
+	}
+
+	@Override
+	public void setIsCurrentJob(boolean isCurrentJob) {
+		_isCurrentJob = isCurrentJob;
+	}
+
+	@Override
 	public Date getEmploymentContractStartDate() {
 		return _employmentContractStartDate;
 	}
@@ -540,36 +552,6 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 	@Override
 	public void setEmploymentContractEndDate(Date employmentContractEndDate) {
 		_employmentContractEndDate = employmentContractEndDate;
-	}
-
-	@Override
-	public Blob getContractDetails() {
-		if (_contractDetailsBlobModel == null) {
-			try {
-				_contractDetailsBlobModel = EmpJobLocalServiceUtil.getContractDetailsBlobModel(getPrimaryKey());
-			}
-			catch (Exception e) {
-			}
-		}
-
-		Blob blob = null;
-
-		if (_contractDetailsBlobModel != null) {
-			blob = _contractDetailsBlobModel.getContractDetailsBlob();
-		}
-
-		return blob;
-	}
-
-	@Override
-	public void setContractDetails(Blob contractDetails) {
-		if (_contractDetailsBlobModel == null) {
-			_contractDetailsBlobModel = new EmpJobContractDetailsBlobModel(getPrimaryKey(),
-					contractDetails);
-		}
-		else {
-			_contractDetailsBlobModel.setContractDetailsBlob(contractDetails);
-		}
 	}
 
 	public long getColumnBitmask() {
@@ -621,6 +603,7 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 		empJobImpl.setEffectiveDate(getEffectiveDate());
 		empJobImpl.setShiftId(getShiftId());
 		empJobImpl.setComments(getComments());
+		empJobImpl.setIsCurrentJob(getIsCurrentJob());
 		empJobImpl.setEmploymentContractStartDate(getEmploymentContractStartDate());
 		empJobImpl.setEmploymentContractEndDate(getEmploymentContractEndDate());
 
@@ -682,8 +665,6 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 		empJobModelImpl._originalGroupId = empJobModelImpl._groupId;
 
 		empJobModelImpl._setOriginalGroupId = false;
-
-		empJobModelImpl._contractDetailsBlobModel = null;
 
 		empJobModelImpl._columnBitmask = 0;
 	}
@@ -776,6 +757,8 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 			empJobCacheModel.comments = null;
 		}
 
+		empJobCacheModel.isCurrentJob = getIsCurrentJob();
+
 		Date employmentContractStartDate = getEmploymentContractStartDate();
 
 		if (employmentContractStartDate != null) {
@@ -837,10 +820,13 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 		sb.append(getShiftId());
 		sb.append(", comments=");
 		sb.append(getComments());
+		sb.append(", isCurrentJob=");
+		sb.append(getIsCurrentJob());
 		sb.append(", employmentContractStartDate=");
 		sb.append(getEmploymentContractStartDate());
 		sb.append(", employmentContractEndDate=");
 		sb.append(getEmploymentContractEndDate());
+		sb.append("}");
 
 		return sb.toString();
 	}
@@ -926,6 +912,10 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 		sb.append(getComments());
 		sb.append("]]></column-value></column>");
 		sb.append(
+			"<column><column-name>isCurrentJob</column-name><column-value><![CDATA[");
+		sb.append(getIsCurrentJob());
+		sb.append("]]></column-value></column>");
+		sb.append(
 			"<column><column-name>employmentContractStartDate</column-name><column-value><![CDATA[");
 		sb.append(getEmploymentContractStartDate());
 		sb.append("]]></column-value></column>");
@@ -964,9 +954,9 @@ public class EmpJobModelImpl extends BaseModelImpl<EmpJob>
 	private Date _effectiveDate;
 	private long _shiftId;
 	private String _comments;
+	private boolean _isCurrentJob;
 	private Date _employmentContractStartDate;
 	private Date _employmentContractEndDate;
-	private EmpJobContractDetailsBlobModel _contractDetailsBlobModel;
 	private long _columnBitmask;
 	private EmpJob _escapedModel;
 }

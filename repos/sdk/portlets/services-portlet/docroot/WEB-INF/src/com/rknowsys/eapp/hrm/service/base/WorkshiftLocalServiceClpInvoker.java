@@ -177,13 +177,13 @@ public class WorkshiftLocalServiceClpInvoker {
 
 		_methodParameterTypes31 = new String[] { "long", "long[][]" };
 
-		_methodName248 = "getBeanIdentifier";
+		_methodName276 = "getBeanIdentifier";
 
-		_methodParameterTypes248 = new String[] {  };
+		_methodParameterTypes276 = new String[] {  };
 
-		_methodName249 = "setBeanIdentifier";
+		_methodName277 = "setBeanIdentifier";
 
-		_methodParameterTypes249 = new String[] { "java.lang.String" };
+		_methodParameterTypes277 = new String[] { "java.lang.String" };
 	}
 
 	public Object invokeMethod(String name, String[] parameterTypes,
@@ -390,13 +390,13 @@ public class WorkshiftLocalServiceClpInvoker {
 			return null;
 		}
 
-		if (_methodName248.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes248, parameterTypes)) {
+		if (_methodName276.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes276, parameterTypes)) {
 			return WorkshiftLocalServiceUtil.getBeanIdentifier();
 		}
 
-		if (_methodName249.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes249, parameterTypes)) {
+		if (_methodName277.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes277, parameterTypes)) {
 			WorkshiftLocalServiceUtil.setBeanIdentifier((java.lang.String)arguments[0]);
 
 			return null;
@@ -469,8 +469,8 @@ public class WorkshiftLocalServiceClpInvoker {
 	private String[] _methodParameterTypes30;
 	private String _methodName31;
 	private String[] _methodParameterTypes31;
-	private String _methodName248;
-	private String[] _methodParameterTypes248;
-	private String _methodName249;
-	private String[] _methodParameterTypes249;
+	private String _methodName276;
+	private String[] _methodParameterTypes276;
+	private String _methodName277;
+	private String[] _methodParameterTypes277;
 }

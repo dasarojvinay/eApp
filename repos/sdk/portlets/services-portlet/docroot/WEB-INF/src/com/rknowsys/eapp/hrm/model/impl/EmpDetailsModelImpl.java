@@ -65,6 +65,7 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 			{ "employeeNo", Types.VARCHAR },
 			{ "companyId", Types.BIGINT },
 			{ "userId", Types.BIGINT },
+			{ "groupId", Types.BIGINT },
 			{ "createDate", Types.TIMESTAMP },
 			{ "modifiedDate", Types.TIMESTAMP },
 			{ "firstName", Types.VARCHAR },
@@ -72,9 +73,9 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 			{ "title", Types.VARCHAR },
 			{ "employmentstatus", Types.VARCHAR },
 			{ "name", Types.VARCHAR },
-			{ "supervisor", Types.VARCHAR }
+			{ "supervisor", Types.BIGINT }
 		};
-	public static final String TABLE_SQL_CREATE = "create table hrm_EmpDetails (empdetailsId LONG not null primary key,employeeNo VARCHAR(75) null,companyId LONG,userId LONG,createDate DATE null,modifiedDate DATE null,firstName VARCHAR(75) null,lastName VARCHAR(75) null,title VARCHAR(75) null,employmentstatus VARCHAR(75) null,name VARCHAR(75) null,supervisor VARCHAR(75) null)";
+	public static final String TABLE_SQL_CREATE = "create table hrm_EmpDetails (empdetailsId LONG not null primary key,employeeNo VARCHAR(75) null,companyId LONG,userId LONG,groupId LONG,createDate DATE null,modifiedDate DATE null,firstName VARCHAR(75) null,lastName VARCHAR(75) null,title VARCHAR(75) null,employmentstatus VARCHAR(75) null,name VARCHAR(75) null,supervisor LONG)";
 	public static final String TABLE_SQL_DROP = "drop table hrm_EmpDetails";
 	public static final String ORDER_BY_JPQL = " ORDER BY empDetails.empdetailsId ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY hrm_EmpDetails.empdetailsId ASC";
@@ -132,6 +133,7 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 		attributes.put("employeeNo", getEmployeeNo());
 		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
+		attributes.put("groupId", getGroupId());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("firstName", getFirstName());
@@ -168,6 +170,12 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 
 		if (userId != null) {
 			setUserId(userId);
+		}
+
+		Long groupId = (Long)attributes.get("groupId");
+
+		if (groupId != null) {
+			setGroupId(groupId);
 		}
 
 		Date createDate = (Date)attributes.get("createDate");
@@ -212,7 +220,7 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 			setName(name);
 		}
 
-		String supervisor = (String)attributes.get("supervisor");
+		Long supervisor = (Long)attributes.get("supervisor");
 
 		if (supervisor != null) {
 			setSupervisor(supervisor);
@@ -272,6 +280,16 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 	@Override
 	public void setUserUuid(String userUuid) {
 		_userUuid = userUuid;
+	}
+
+	@Override
+	public long getGroupId() {
+		return _groupId;
+	}
+
+	@Override
+	public void setGroupId(long groupId) {
+		_groupId = groupId;
 	}
 
 	@Override
@@ -370,17 +388,12 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 	}
 
 	@Override
-	public String getSupervisor() {
-		if (_supervisor == null) {
-			return StringPool.BLANK;
-		}
-		else {
-			return _supervisor;
-		}
+	public long getSupervisor() {
+		return _supervisor;
 	}
 
 	@Override
-	public void setSupervisor(String supervisor) {
+	public void setSupervisor(long supervisor) {
 		_supervisor = supervisor;
 	}
 
@@ -415,6 +428,7 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 		empDetailsImpl.setEmployeeNo(getEmployeeNo());
 		empDetailsImpl.setCompanyId(getCompanyId());
 		empDetailsImpl.setUserId(getUserId());
+		empDetailsImpl.setGroupId(getGroupId());
 		empDetailsImpl.setCreateDate(getCreateDate());
 		empDetailsImpl.setModifiedDate(getModifiedDate());
 		empDetailsImpl.setFirstName(getFirstName());
@@ -493,6 +507,8 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 
 		empDetailsCacheModel.userId = getUserId();
 
+		empDetailsCacheModel.groupId = getGroupId();
+
 		Date createDate = getCreateDate();
 
 		if (createDate != null) {
@@ -553,18 +569,12 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 
 		empDetailsCacheModel.supervisor = getSupervisor();
 
-		String supervisor = empDetailsCacheModel.supervisor;
-
-		if ((supervisor != null) && (supervisor.length() == 0)) {
-			empDetailsCacheModel.supervisor = null;
-		}
-
 		return empDetailsCacheModel;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(25);
+		StringBundler sb = new StringBundler(27);
 
 		sb.append("{empdetailsId=");
 		sb.append(getEmpdetailsId());
@@ -574,6 +584,8 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 		sb.append(getCompanyId());
 		sb.append(", userId=");
 		sb.append(getUserId());
+		sb.append(", groupId=");
+		sb.append(getGroupId());
 		sb.append(", createDate=");
 		sb.append(getCreateDate());
 		sb.append(", modifiedDate=");
@@ -597,7 +609,7 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 
 	@Override
 	public String toXmlString() {
-		StringBundler sb = new StringBundler(40);
+		StringBundler sb = new StringBundler(43);
 
 		sb.append("<model><model-name>");
 		sb.append("com.rknowsys.eapp.hrm.model.EmpDetails");
@@ -618,6 +630,10 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
 		sb.append(getUserId());
+		sb.append("]]></column-value></column>");
+		sb.append(
+			"<column><column-name>groupId</column-name><column-value><![CDATA[");
+		sb.append(getGroupId());
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>createDate</column-name><column-value><![CDATA[");
@@ -666,6 +682,7 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 	private long _companyId;
 	private long _userId;
 	private String _userUuid;
+	private long _groupId;
 	private Date _createDate;
 	private Date _modifiedDate;
 	private String _firstName;
@@ -673,6 +690,6 @@ public class EmpDetailsModelImpl extends BaseModelImpl<EmpDetails>
 	private String _title;
 	private String _employmentstatus;
 	private String _name;
-	private String _supervisor;
+	private long _supervisor;
 	private EmpDetails _escapedModel;
 }

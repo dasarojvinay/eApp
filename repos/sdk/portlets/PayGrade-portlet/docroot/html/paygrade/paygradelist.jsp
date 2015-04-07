@@ -2,10 +2,8 @@
 <%@page import="com.rknowsys.eapp.hrm.service.PayGradeLocalServiceUtil"%>
 <%@page import="com.rknowsys.eapp.hrm.model.PayGrade"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>paygradelist</title>
+
 <portlet:resourceURL var="deletepaygrade" id="deletePayGrade"/>
 <portlet:renderURL var="listview">
 	<portlet:param name="mvcPath" value="/html/paygrade/paygradelist.jsp" />
@@ -13,15 +11,7 @@
 <portlet:renderURL var="addpaygrade">
 	<portlet:param name="mvcPath" value="/html/paygrade/addpaygrade.jsp" />
 </portlet:renderURL>
-<style type="text/css">
-.table-first-header {
-	width: 10%;
-}
-.table-last-header {
-	width: 15%;
-}
 
-</style>
 <aui:script>
 
 AUI().use(
@@ -76,16 +66,9 @@ function addPayGrade(){
 
 </aui:script>
 
-
-</head>
-<body>
-<div class="row-fluid">
-	<div id="interviewadddelete" class="span12">
-		<div class="pull-left">
-		<button  onclick="addPayGrade()" class="btn btn-success" type="button"><i class="icon-plus"></i> Add </button>
-		<button id="delete" class="btn btn-danger" type="button"><i class="icon-trash"></i> Delete </button> 
-		</div>
-	</div>
+	<div id="interviewadddelete" class="control-group text-right">
+		<a onclick="addPayGrade()" class="btn btn-success"><i class="icon-plus"></i> Add</a>
+		<a id="delete" class="btn btn-danger"><i class="icon-trash"></i> Delete</a> 
 	</div>
 
 <%
@@ -93,6 +76,14 @@ function addPayGrade(){
 PortletURL iteratorURL = renderResponse.createRenderURL();
 
 iteratorURL.setParameter("mvcPath", "/html/paygrade/paygradelist.jsp");
+long groupId=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery dynamicQuery = DynamicQueryFactoryUtil
+.forClass(PayGrade.class,
+		PortletClassLoaderUtil.getClassLoader());
+dynamicQuery.add(PropertyFactoryUtil.forName("groupId")
+.eq(groupId));
+List<PayGrade> paygrades = PayGradeLocalServiceUtil
+.dynamicQuery(dynamicQuery);
 %>
 <%!
   com.liferay.portal.kernel.dao.search.SearchContainer<PayGrade> searchContainer;
@@ -102,9 +93,8 @@ iteratorURL.setParameter("mvcPath", "/html/paygrade/paygradelist.jsp");
 		<liferay-ui:search-container-results>
 		<%
 		 
-		 results =  PayGradeLocalServiceUtil.getPayGrades(searchContainer.getStart(), searchContainer.getEnd());
-		System.out.println("results == " +results.size());
-		total = PayGradeLocalServiceUtil.getPayGradesCount();
+		 results =  ListUtil.subList(paygrades, searchContainer.getStart(), searchContainer.getEnd());
+		total = paygrades!=null && paygrades.size()!=0?paygrades.size():0;
 		pageContext.setAttribute("results", results);
 		pageContext.setAttribute("total", total);
 				
@@ -120,5 +110,3 @@ iteratorURL.setParameter("mvcPath", "/html/paygrade/paygradelist.jsp");
 	<liferay-ui:search-iterator/>
 	
 </liferay-ui:search-container>
-</body>
-</html>

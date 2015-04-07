@@ -1,3 +1,4 @@
+<%@page import="com.liferay.portal.kernel.servlet.SessionMessages"%>
 <%@ include file="/html/license/init.jsp" %>
 <portlet:actionURL var="updateLicenses" name="updateLicense">
 </portlet:actionURL>
@@ -6,78 +7,20 @@
 	<portlet:param name="mvcPath" value="/html/license/add.jsp" />
 </portlet:renderURL>
 <aui:script>
-AUI().use(
-  'aui-node',
-  function(A) {
-    var node = A.one('#delete');
-    node.on(
-      'click',
-      function() {
-     var idArray = [];
-      A.all('input[type=checkbox]:checked').each(function(object) {
-      idArray.push(object.get("value"));
-    
-        });
-       if(idArray==""){
-			  alert("Please select records!");
-		  }else{
-			  var d = confirm("Are you sure you want to delete the selected license?");
-		  if(d){
-		   var url = '<%=deleteLicenses%>';
-          A.io.request(url,
-         {
-          data: {  
-                <portlet:namespace />licenseIds: idArray,  
-                 },
-          on: {
-               success: function() { 
-                   alert('deleted successfully');
-                   window.location='<%=listview%>';
-              },
-               failure: function() {
-                  
-                 }
-                }
-                 }
-                );
-		  																		
-		  console.log(idArray);
-	  
-      return true;
-  }
-  else
-    return false;
-}             
-      }
-    );
-  }
-);
+
 </aui:script><aui:script>
-AUI().use(
-  'aui-node',
-  function(A) {
-    var node = A.one('#add');
-    node.on(
-      'click',
-      function() {
-         A.one('#editLicenseAddDelete').hide();
-         A.one('#editLicenseForm').show();
-                     
-      }
-    );
-  }
-);
-
-AUI().ready('event', 'node', function(A){
-
-  A.one('#editLicenseAddDelete').hide();
- 
+AUI().ready('event', 'node','transition',function(A){
+  A.one('#licenseName').focus();
+  setTimeout(function(){
+    A.one('#editLicenseMessage').transition('fadeOut');
+    A.one('#editLicenseMessage').hide();
+},2000)
  });
 
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#editCancel');
+    var node = A.one('#editlicensecancel');
     node.on(
       'click',
       function() {
@@ -90,38 +33,34 @@ AUI().use(
 );
 
 </aui:script>
-
-
-
-</head>
-<body>
-<jsp:useBean id="editLicense" type="com.rknowsys.eapp.hrm.model.License" scope="request" />
-<div class="row-fluid">
-	<div id="editLicenseAddDelete" class="span12 text-right">
-		<a href="#" id="add" class="btn btn-success"><i class="icon-plus"></i></a>
-		<a href="#" id="delete" class="btn btn-danger"><i class="icon-trash"></i></a>
-	</div>
-	<div id="editLicenseForm">
-	  <aui:form name="myForm" action="<%=updateLicenses.toString()%>">
-			<aui:input name="licenseId" type="hidden" id="licenseId"  value="<%=editLicense.getLicenseId()%>"/>
-			<div class="row-fluid">
-				<div class="span2 text-right">
-					<label>Name</label>
+<% 
+ License editLicense = (License)portletSession.getAttribute("editLicense");
+if(SessionMessages.contains(renderRequest.getPortletSession(),"licenseName-empty-error")){%>
+<p id="editLicenseMessage" class="alert alert-error"><liferay-ui:message key="Please Enter LicenseName"/></p>
+<%}
+%>
+    
+     <div class="row-fluid">
+		<div  id="editLicenseForm">
+			<div class="panel">
+				<div class="panel-heading">
+					<h4>Edit</h4>
 				</div>
-				<div class="span3">		
-			 		<input name="<portlet:namespace/>license_name" type="text" required = "required" value="<%=editLicense.getLicenseName() %>" >
-				</div>
-			</div>
-			<div class="row-fluid">
-				<div class="span6 offset2">
-				<aui:button type="submit" value="Submit"/> 
-				<aui:button  type="reset" value="Cancel" id ="editCancel"></aui:button>
+				<div class="panel-body">
+					<aui:form name="myForm" action="<%=updateLicenses.toString()%>" >
+						<aui:input name="licenseId" type="hidden" id="licenseId"  value="<%=editLicense.getLicenseId()%>" />
+						<div class="form-inline">
+							<label>License Name: </label>
+							<input name="<portlet:namespace/>license_name" id="licenseName" type="text" value="<%=editLicense.getLicenseName() %>" >
+							<button type="submit" class="btn btn-primary"><i class="icon-ok"></i> Submit</button>
+							<button  type="reset" id ="editlicensecancel" class="btn btn-danger"><i class="icon-remove"></i> Cancel</button>
+						</div>
+					</aui:form>
 				</div>
 			</div>
-		</aui:form>
+		</div>
 	</div>
-</div>
-</body>
+
 <%
 PortletURL iteratorURL = renderResponse.createRenderURL();
 iteratorURL.setParameter("mvcPath", "/html/license/edit.jsp");
@@ -137,6 +76,14 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 } else { 
 	sortByType = portalPrefs.getValue("NAME_SPACE", "sort-by-type ", "asc");   
 }
+long groupId=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery licenseDynamicQuery = DynamicQueryFactoryUtil
+.forClass(License.class,
+		PortletClassLoaderUtil.getClassLoader());
+licenseDynamicQuery.add(PropertyFactoryUtil.forName("groupId")
+.eq(groupId));
+List<License> licenseDetails = LicenseLocalServiceUtil
+.dynamicQuery(licenseDynamicQuery);
 %>
 <%!
   com.liferay.portal.kernel.dao.search.SearchContainer<License> searchContainer;
@@ -145,16 +92,17 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 		<liferay-ui:search-container-results>
 				
 		<%
-            List<License> listOfLicenses = LicenseLocalServiceUtil.getLicenses(searchContainer.getStart(), searchContainer.getEnd());
-            OrderByComparator orderByComparator = CustomComparatorUtil.getLicensesOrderByComparator(sortByCol, sortByType);         
-  
-           Collections.sort(listOfLicenses,orderByComparator);
-  
-          results = listOfLicenses;
-          
-           
-     
-               total = LicenseLocalServiceUtil.getLicensesCount();
+		 List<License> licenseList = ListUtil.subList(licenseDetails, searchContainer.getStart(),searchContainer.getEnd());
+		OrderByComparator orderByComparator =  CustomComparatorUtil.getLicensesOrderByComparator(sortByCol, sortByType);
+   
+               Collections.sort(licenseList,orderByComparator);
+  				if(licenseDetails.size()>5){
+  					results = licenseList;
+  				}
+  				else{
+               results =licenseDetails;
+  				}
+               total =licenseDetails.size();
                pageContext.setAttribute("results", results);
                pageContext.setAttribute("total", total);
  %>
@@ -168,7 +116,7 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	<liferay-ui:search-iterator/>
 	
 </liferay-ui:search-container>
-</html>
+
 
 
 

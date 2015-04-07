@@ -1,6 +1,5 @@
+<%@page import="org.apache.log4j.Logger"%>
 <%@ include file="/html/Interview/init.jsp"%>
-<html>
-<head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Interview</title>
 <portlet:actionURL var="saveinterview" name="saveInterview">
@@ -9,17 +8,6 @@
 <portlet:renderURL var="listview">
 	<portlet:param name="mvcPath" value="/html/Interview/add.jsp" />
 </portlet:renderURL>
-<style type="text/css">
-.table-first-header {
-	width: 10%;
-}
-.table-last-header {
-	width: 15%;
-}
-em {
-	color: red;
-}
-</style>
 <aui:script>
 AUI().use(
   'aui-node',
@@ -81,15 +69,19 @@ AUI().use(
       function() {
          A.one('#interviewadddelete').hide();
          A.one('#addInterviewForm').show();
+         A.one('#interviewName').focus();
                      
       }
     );
   }
 );
 
- AUI().ready('event', 'node', function(A){
-
+AUI().ready('event', 'node','transition',function(A){
   A.one('#addInterviewForm').hide();
+  setTimeout(function(){
+    A.one('#addInterviewMessage').transition('fadeOut');
+    A.one('#addInterviewMessage').hide();
+},2000)
  });
 
 AUI().use(
@@ -108,50 +100,38 @@ AUI().use(
 );
 
 </aui:script>
-</head>
+<% Logger log=Logger.getLogger(this.getClass().getName());%>
 
-<body>
-	<!-- <div id="interviewadddelete" class="span12">
-		<a href="#" id="interviewadd">Add</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" id="interviewdelete">Delete</a>
+<% if(SessionMessages.contains(renderRequest.getPortletSession(),"interviewName-empty-error")){%>
+<p id="addInterviewMessage" class="alert alert-error"><liferay-ui:message key="Please Enter InterviewName"/></p>
+<%} 
+ if(SessionMessages.contains(renderRequest.getPortletSession(),"interviewName-duplicate-error")){
+%>
+<p id="addInterviewMessage" class="alert alert-error"><liferay-ui:message key="InterviewName already Exits"/></p>
+<%} 
+%>
 
-	</div> -->
-	<div class="row-fluid">
-	<div id="interviewadddelete" class="span12">
-		<div class="pull-right">
-		<button id="interviewadd" class="btn btn-success" type="button"><i class="icon-plus"></i> Add </button>
-		<button id="interviewdelete" class="btn btn-danger" type="button"><i class="icon-trash"></i> Delete </button> 
+		<div id="interviewadddelete" class="control-group text-right">
+			<a href="#" class="btn btn-primary" id="interviewadd"><i class="icon-plus"></i> Add</a>
+			<a href="#" class="btn btn-danger" id="interviewdelete"><i class="icon-trash"></i> Delete</a>
 		</div>
-	</div>
-	</div>
-	<div  id="addInterviewForm" class="form-horizontal">
-	<aui:form name="myForm" action="<%=saveinterview.toString()%>">
-		<aui:input name="interviewId" type="hidden" id="interviewId" />
-		<div class="span12">
-			<div class="span2">
-				<label>Interview Name<em>*</em></label>
-		</div>
-		<div class="span3">		
-		 <input name="<portlet:namespace/>name" id="interview" type="text" required = "required">
+		<div id="addInterviewForm" class="panel">
+			<div class="panel-heading">
+				<h4>Add</h4>
+			</div>
+			<div class="panel-body">
+				<aui:form name="myForm" action="<%=saveinterview.toString()%>" >
+					<aui:input name="interviewId" type="hidden" id="interviewId" />
+					<div class="form-inline">
+						<label>Interview Name: </label>
+						<input name="<portlet:namespace/>name" type="text" id="interviewName">
+						<button type="submit" class="btn btn-primary"><i class="icon-ok"></i> Submit</button>
+						<button  type="reset" id ="interviewcancel" class="btn btn-danger"><i class="icon-remove"></i> Cancel</button>
+					</div>
+				</aui:form>
 			</div>
 		</div>
-		
-		<div class="control-group">
-			<div class="controls">
-				<aui:button type="submit" value="Submit" />
-				<aui:button  type="reset" value="Cancel" id ="interviewcancel"/>
-			</div>
-		</div>
-		
-	</aui:form>
-	
-	<em>*</em> Required field
-	
-	</div>
-	
-	 <div><label style="color: white" >.</label></div>
-	 
-	
-</body>
+
 
 <%
 
@@ -162,10 +142,10 @@ RowChecker rowChecker = new RowChecker(renderResponse);
 PortalPreferences portalPrefs = PortletPreferencesFactoryUtil.getPortalPreferences(request); 
 String sortByCol = ParamUtil.getString(request, "orderByCol"); 
 String sortByType = ParamUtil.getString(request, "orderByType"); 
-System.out.println("sortByCol == " +sortByCol);
-System.out.println("sortByType == " +sortByType);
+log.info("sortByCol == " +sortByCol);
+log.info("sortByType == " +sortByType);
 if (Validator.isNotNull(sortByCol ) && Validator.isNotNull(sortByType )) { 
-	System.out.println("if block...");
+	log.info("if block...add.jsp");
  
 portalPrefs.setValue("NAME_SPACE", "sort-by-col", sortByCol); 
 portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol); 
@@ -176,10 +156,17 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	sortByType = portalPrefs.getValue("NAME_SPACE", "sort-by-type ", "asc");   
 }
 
-System.out.println("after....");
-System.out.println("sortByCol == " +sortByCol);
-System.out.println("sortByType == " +sortByType);
-
+log.info("after....");
+log.info("sortByCol == " +sortByCol);
+log.info("sortByType == " +sortByType);
+long groupId=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery interviewDynamicQuery = DynamicQueryFactoryUtil
+.forClass(Interview.class,
+		PortletClassLoaderUtil.getClassLoader());
+interviewDynamicQuery.add(PropertyFactoryUtil.forName("groupId")
+.eq(groupId));
+List<Interview> interviewDetails = InterviewLocalServiceUtil
+.dynamicQuery(interviewDynamicQuery);
 %>
 <%!
   com.liferay.portal.kernel.dao.search.SearchContainer<Interview> searchContainer;
@@ -192,18 +179,21 @@ System.out.println("sortByType == " +sortByType);
 	deltaConfigurable="true" iteratorURL="<%=iteratorURL%>">
 	<liferay-ui:search-container-results>
 	<%
-			List<Interview> interviewList =  InterviewLocalServiceUtil.getInterviews(searchContainer.getStart(), searchContainer.getEnd());
-            System.out.println("list size == " +interviewList.size());
+			List<Interview> interviewList = ListUtil.subList(interviewDetails, searchContainer.getStart(), searchContainer.getEnd())  ;
             OrderByComparator orderByComparator = CustomComparatorUtil.getInterviewrOrderByComparator(sortByCol, sortByType);         
   
            Collections.sort(interviewList,orderByComparator);
-  
-          results = interviewList;
-          
+  				
+           if(interviewDetails.size()>5){
+           results = ListUtil.subList(interviewDetails, searchContainer.getStart(), searchContainer.getEnd());
+           }
+           else{
+        	   results = interviewDetails;
+           }
             System.out.println("results == " +results);
            
      
-               total = InterviewLocalServiceUtil.getInterviewsCount();
+               total = interviewDetails.size();
                System.out.println("total == " +total);
                pageContext.setAttribute("results", results);
                pageContext.setAttribute("total", total);
@@ -224,5 +214,3 @@ System.out.println("sortByType == " +sortByType);
 
 </liferay-ui:search-container>
 </div>
-
-</html>

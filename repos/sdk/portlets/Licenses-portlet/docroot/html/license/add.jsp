@@ -1,3 +1,4 @@
+<%@page import="com.liferay.portal.kernel.servlet.SessionMessages"%>
 <%@ include file="/html/license/init.jsp"%>
 
 <portlet:actionURL var="saveLicenses" name="saveLicense">
@@ -6,19 +7,17 @@
 <portlet:renderURL var="listview">
 	<portlet:param name="mvcPath" value="/html/license/add.jsp" />
 </portlet:renderURL>
-
 <aui:script>
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#delete');
+    var node = A.one('#licensedelete');
     node.on(
       'click',
       function() {
      var idArray = [];
-      A.all('input[type=checkbox]:checked').each(function(object) {
+     A.all('input[name=<portlet:namespace/>rowIds]:checked').each(function(object) {
       idArray.push(object.get("value"));
-    alert(idArray.length);
         });
        if(idArray==""){
 			  alert("Please select records!");
@@ -59,27 +58,32 @@ AUI().use(
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#add');
+    var node = A.one('#licenseadd');
     node.on(
       'click',
       function() {
          A.one('#licenseAddDelete').hide();
          A.one('#addLicenseForm').show();
+         A.one('#licenseName').focus();
                      
       }
     );
   }
 );
 
- AUI().ready('event', 'node', function(A){
-
+AUI().ready('event', 'node','transition',function(A){
   A.one('#addLicenseForm').hide();
+  setTimeout(function(){
+    A.one('#addLicenseMessage').transition('fadeOut');
+    A.one('#addLicenseMessage').hide();
+},2000)
  });
-
+ 
+ 
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#cancel');
+    var node = A.one('#licensecancel');
     node.on(
       'click',
       function() {
@@ -92,35 +96,46 @@ AUI().use(
 );
 
 </aui:script>
-</head>
 
-<body>
-	<div class="row-fluid">
-	<div id="licenseAddDelete" class="span12 text-right">
-		<a href="#" id="add" class="btn btn-success"><i class="icon-plus"></i></a>
-		<a href="#" id="delete" class="btn btn-danger"><i class="icon-trash"></i></a>
-	</div>
-	<div  id="addLicenseForm">
-	<aui:form name="myForm" action="<%=saveLicenses.toString()%>" >
-		<aui:input name="licenseId" type="hidden" id="licenseId" />
-		<div class="row-fluid">
-			<div class="span2 text-right">
-				<label>Name</label>
-			</div>
-			<div class="span6">		
-			 	<input name="<portlet:namespace/>license_name" type="text" required = "required">
-			</div>
-		</div>
-		<div class="row-fluid">
-			<div class="span6 offset2">
-				<aui:button type="submit" value="Submit" />
-				<aui:button  type="reset" value="Cancel" id ="cancel"/>
+<% 
+
+if(SessionMessages.contains(renderRequest.getPortletSession(),"licenseName-empty-error")){%>
+<p id="addLicenseMessage" class="alert alert-error"><liferay-ui:message key="Please Enter LicenseName"/></p>
+<%} 
+ if(SessionMessages.contains(renderRequest.getPortletSession(),"licenseName-duplicate-error")){
+%>
+<p id="addLicenseMessage" class="alert alert-error"><liferay-ui:message key="LicenseName already Exits"/></p>
+<%} 
+%>
+    
+    <div class="row-fluid">
+		<div id="licenseAddDelete" class="span12 text-right">
+			<div class="control-group">
+				<a href="#" class="btn btn-primary" id="licenseadd"><i class="icon-plus"></i> Add</a>
+				<a href="#" class="btn btn-danger" id="licensedelete"><i class="icon-trash"></i> Delete</a>
 			</div>
 		</div>
-	</aui:form>
+		<div  id="addLicenseForm">
+			<div class="panel">
+				<div class="panel-heading">
+					<h4>Add</h4>
+				</div>
+				<div class="panel-body">
+					<aui:form name="myForm" action="<%=saveLicenses.toString()%>" >
+						<aui:input name="licenseId" type="hidden" id="licenseId" />
+						<div class="form-inline">
+							<label>License Name: </label>
+							<input name="<portlet:namespace/>license_name" id="licenseName" type="text">
+							<button type="submit" class="btn btn-primary"><i class="icon-ok"></i> Submit</button>
+							<button  type="reset" id ="licensecancel" class="btn btn-danger"><i class="icon-remove"> Cancel</i></button>
+						</div>
+					</aui:form>
+				</div>
+			</div>
+		</div>
 	</div>
-	</div>
-</body>
+    
+
 
 <%
 
@@ -143,7 +158,14 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	
 	sortByType = portalPrefs.getValue("NAME_SPACE", "sort-by-type ", "asc");   
 }
-
+long groupId=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery licenseDynamicQuery = DynamicQueryFactoryUtil
+.forClass(License.class,
+		PortletClassLoaderUtil.getClassLoader());
+licenseDynamicQuery.add(PropertyFactoryUtil.forName("groupId")
+.eq(groupId));
+List<License> licenseDetails = LicenseLocalServiceUtil
+.dynamicQuery(licenseDynamicQuery);
 %>
 <%!
   com.liferay.portal.kernel.dao.search.SearchContainer<License> searchContainer;
@@ -157,13 +179,17 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	<liferay-ui:search-container-results>
 
 		<%
-            List<License> licenseList = LicenseLocalServiceUtil.getLicenses(searchContainer.getStart(), searchContainer.getEnd());
+            List<License> licenseList = ListUtil.subList(licenseDetails, searchContainer.getStart(),searchContainer.getEnd());
 		OrderByComparator orderByComparator =  CustomComparatorUtil.getLicensesOrderByComparator(sortByCol, sortByType);
    
                Collections.sort(licenseList,orderByComparator);
-  
-               results = licenseList;
-               total = LicenseLocalServiceUtil.getLicensesCount();
+  				if(licenseDetails.size()>5){
+  					results = licenseList;
+  				}
+  				else{
+               results =licenseDetails;
+  				}
+               total =licenseDetails.size();
                pageContext.setAttribute("results", results);
                pageContext.setAttribute("total", total);
 

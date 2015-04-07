@@ -1,3 +1,5 @@
+<%@page import="com.liferay.portal.kernel.servlet.SessionMessages"%>
+<%@page import="org.apache.log4j.Logger"%>
 <%@page import="com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil"%>
 <%@page import="com.liferay.portal.kernel.util.PortalClassLoaderUtil"%>
 <%@page import="com.rknowsys.eapp.hrm.service.EmpJobLocalServiceUtil"%>
@@ -8,10 +10,8 @@
 <%@page import="com.rknowsys.eapp.hrm.service.EmpPersonalDetailsLocalServiceUtil"%>
 <%@page import="com.rknowsys.eapp.hrm.model.EmpPersonalDetails"%>
 <%@ include file="/html/workshift/init.jsp"%>
-<html>
-<head>
+
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Work Shifts</title>
 
 <portlet:actionURL var="saveworkshift" name="saveWorkshift"/>
 <portlet:resourceURL var="deleteworkshift" id="deleteWorkshift" />
@@ -28,6 +28,9 @@
 }
 .aui input[type="text"],.aui select{
 border-radius: 4px;
+}
+#<portlet:namespace/>fromWorkHours,#<portlet:namespace/>toWorkHours{
+  width: 59px;
 }
 .aui label {
 color: #555;
@@ -48,7 +51,7 @@ AUI().use(
       function() {
      
      var idArray = [];
-      A.all('input[type=checkbox]:checked').each(function(object) {
+      A.all('input[name=<portlet:namespace/>rowIds]:checked').each(function(object) {
       idArray.push(object.get("value"));
     
         });
@@ -138,39 +141,51 @@ YUI().use(
   function(Y) {
     new Y.TimePicker(
       {
-        trigger: '#fromWorkHours',
+        trigger: '#<portlet:namespace/>fromWorkHours',
         popover: {
           zIndex: 2
         },
         mask:'%H:%M',
         on: {
           selectionChange: function(event) {
-            document.<portlet:namespace />workshiftForm.<portlet:namespace />duration.value = event.newSelection;
+            //document.<portlet:namespace />workshiftForm.<portlet:namespace />duration.value = event.newSelection;
           }
         }
       }
     );
     new Y.TimePicker(
       {
-        trigger: '#toWorkHours',
+        trigger: '#<portlet:namespace/>toWorkHours',
         mask:'%H:%M',
         popover: {
           zIndex: 1
         },
         on: {
           selectionChange: function(event) {
-            document.<portlet:namespace />workshiftForm.<portlet:namespace />duration.value = event.newSelection;
+            //document.<portlet:namespace />workshiftForm.<portlet:namespace />duration.value = event.newSelection;
           }
         }
       }
     );
-  }
+    }
 );
-
+AUI().ready('event', 'node','transition',function(A){
+setTimeout(function(){
+A.one('#addworkshiftMessage').transition('fadeOut');
+A.one('#addworkshiftMessage').hide();
+},2000)
+});
 </aui:script>
-</head>
 
-<body>
+<% Logger log=Logger.getLogger(this.getClass().getName());%>
+<% if(SessionMessages.contains(renderRequest.getPortletSession(),"workshiftName-empty-error")){%>
+<p id="addworkshiftMessage" class="alert alert-error"><liferay-ui:message key="Please Enter WorkshiftName"/></p>
+<%} 
+ if(SessionMessages.contains(renderRequest.getPortletSession(),"workshiftName-duplicate-error")){
+%>
+<p id="addworkshiftMessage" class="alert alert-error"><liferay-ui:message key="WorkshiftName already Exits"/></p>
+<%} 
+%>
 	 
 <div id="addworkshiftForm" >
 	<aui:form 	 name = "workshiftForm" action="<%=saveworkshift %>">
@@ -181,22 +196,51 @@ YUI().use(
 				type="text" label="Shift Name">
 				<aui:validator name="required" />
 			</aui:input>
-	</div>
+	</div> 
 	<div class="row-fluid">
 	 <div class="span4">
 			<label>From</label>
-			<input name="<portlet:namespace />fromWorkHours"
-				id="fromWorkHours" type="text" required="required"
-				placeholder="hh:mm" value="00:00"  />
+			<aui:input name="fromWorkHours"
+				id="fromWorkHours" type="text" label=""
+				placeholder="hh:mm" value="00:00">
+				</aui:input>
 			</div>
 			<div class="span4">
 				<label>To</label>
-			<input name="<portlet:namespace />toWorkHours" id="toWorkHours"
-				type="text" required="required" placeholder="hh:mm" value="00:00"
-				/>
+			<aui:input name="toWorkHours" id="toWorkHours" label=""
+				type="text" placeholder="hh:mm" value="00:00" >
+				
+				<aui:validator name="custom" errorMessage="To time should be greater than from From time">
+						function(val,fieldNode,ruleValue)
+						{
+							var result=false;
+							var from=A.one("#<portlet:namespace/>fromWorkHours").get('value'); 
+	                        <!-- alert(from); -->
+	                        var d=new Date();
+	                        var str=from;
+	                        var res=str.split(":");
+	                        var value1=res[0];
+	                        var value2=res[1];
+	                        var str2=val;
+	                        var res1=str2.split(":");
+	                        var value3=res1[0];
+	                        var value4=res1[1];
+	                        var result1=res[0]+res[1];
+	                        var result2=res1[0]+res1[1];
+	                        
+	                        if(result1 < result2 ){
+	                        	result=true;
+	                        }else{
+	                        	result= false;
+							}
+						return result;
+						}
+				</aui:validator>
+			</aui:input>
 		</div><div class="span4"></div>
 		
 </div>
+
   <div class="row-fluid">
 
 				<table>
@@ -205,7 +249,7 @@ YUI().use(
  <%
  
  		List<EmpPersonalDetails> emplist = EmpPersonalDetailsLocalServiceUtil.getEmployeeDetailsByShiftId(Long.parseLong("0"));
- 		System.out.println("List == "+emplist.size());
+ 		log.info("List == "+emplist.size());
  %> <select name="<portlet:namespace />selectfrom" id="select-from" multiple="multiple">
 								<%
 									for (int i = 0; i < emplist.size(); i++) {
@@ -243,7 +287,7 @@ YUI().use(
 	</div>
 	
 	
-</body>
+
 
 <%
 	PortletURL iteratorURL = renderResponse.createRenderURL();
@@ -255,11 +299,11 @@ YUI().use(
 			.getPortalPreferences(request);
 	String sortByCol = ParamUtil.getString(request, "orderByCol");
 	String sortByType = ParamUtil.getString(request, "orderByType");
-	System.out.println("sortByCol == " + sortByCol);
-	System.out.println("sortByType == " + sortByType);
+	log.info("sortByCol == " + sortByCol);
+	log.info("sortByType == " + sortByType);
 	if (Validator.isNotNull(sortByCol)
 			&& Validator.isNotNull(sortByType)) {
-		System.out.println("if block...");
+		log.info("if block...");
 
 		portalPrefs.setValue("NAME_SPACE", "sort-by-col", sortByCol);
 		portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
@@ -270,9 +314,9 @@ YUI().use(
 				"sort-by-type ", "asc");
 	}
 
-	System.out.println("after....");
-	System.out.println("sortByCol == " + sortByCol);
-	System.out.println("sortByType == " + sortByType);
+	log.info("after....");
+	log.info("sortByCol == " + sortByCol);
+	log.info("sortByType == " + sortByType);
 %>
 <%!com.liferay.portal.kernel.dao.search.SearchContainer<Workshift> searchContainer;%>
 <div>
@@ -284,34 +328,42 @@ YUI().use(
 		<liferay-ui:search-container-results>
 
 			<%
-				List<Workshift> workshiftList = WorkshiftLocalServiceUtil
-								.getWorkshifts(searchContainer.getStart(),
-										searchContainer.getEnd());
-						System.out.println("list size == "
+			   
+			long groupId =  themeDisplay.getLayout().getGroup().getGroupId();
+			DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(Workshift.class,PortletClassLoaderUtil.getClassLoader());
+
+			dynamicQuery.add(PropertyFactoryUtil.forName("groupId").eq(groupId));
+			  
+				List<Workshift> workshiftList = WorkshiftLocalServiceUtil.dynamicQuery(dynamicQuery);
+						log.info("list size == "
 								+ workshiftList.size());
 						OrderByComparator orderByComparator = CustomComparatorUtil
 								.getWorkshiftOrderByComparator(sortByCol,
 										sortByType);
 
 						Collections.sort(workshiftList, orderByComparator);
-
+						if(workshiftList.size()>5){
+							results = ListUtil.subList(workshiftList, searchContainer.getStart(),searchContainer.getEnd());
+						}else{
 						results = workshiftList;
+						}
+						log.info("results == " + results);
 
-						System.out.println("results == " + results);
-
-						total = WorkshiftLocalServiceUtil
-								.getWorkshiftsCount();
-						System.out.println("total == " + total);
+						total = workshiftList.size();
+						log.info("total == " + total);
 						pageContext.setAttribute("results", results);
 						pageContext.setAttribute("total", total);
-				System.out.println("searchContainer.getStart() =" + searchContainer.getStart());
-					System.out.println(	"searchContainer.getEnd() = " + searchContainer.getEnd());
+				log.info("searchContainer.getStart() =" + searchContainer.getStart());
+					log.info(	"searchContainer.getEnd() = " + searchContainer.getEnd());
 			%>
 
 		</liferay-ui:search-container-results>
 		<liferay-ui:search-container-row className="Workshift"
 			keyProperty="shiftId" modelVar="workshift" rowVar="curRow"
 			escapedModel="<%=true%>">
+			
+			
+			
 			<% WorkshiftBean workshiftExt = new WorkshiftBean(workshift); %>
 			<liferay-ui:search-container-column-text orderable="<%=true%>"
 				name="Shift Name" property="workshiftName"
@@ -330,5 +382,3 @@ YUI().use(
 
 	</liferay-ui:search-container>
 </div>
-
-</html>

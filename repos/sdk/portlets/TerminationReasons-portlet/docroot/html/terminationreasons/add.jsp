@@ -1,5 +1,4 @@
-<%@page import="com.rknowsys.eapp.hrm.service.TerminationReasonsLocalServiceUtil"%>
-<%@page import="com.rknowsys.eapp.hrm.model.TerminationReasons"%>
+<%@page import="org.apache.log4j.Logger"%>
 <%@ include file="/html/terminationreasons/init.jsp"%>
 
 <portlet:actionURL var="saveterminationreasons" name="saveTerminationReasons">
@@ -15,6 +14,9 @@
 .table-last-header {
 	width: 15%;
 }
+ #addTerminationReasonMessage{
+ color: red;
+}
 .aui input[type="text"]{
 border-radius: 4px;
 }
@@ -23,12 +25,12 @@ border-radius: 4px;
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#delete');
+    var node = A.one('#terminationreasondelete');
     node.on(
       'click',
       function() {
      var idArray = [];
-      A.all('input[type=checkbox]:checked').each(function(object) {
+    A.all('input[name=<portlet:namespace/>rowIds]:checked').each(function(object) {
       idArray.push(object.get("value"));
       });
        if(idArray==""){
@@ -70,27 +72,31 @@ AUI().use(
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#add');
+    var node = A.one('#terminationreasonadd');
     node.on(
       'click',
       function() {
          A.one('#terminationreasonsAddDelete').hide();
          A.one('#addterminationreasonsForm').show();
+         A.one('#terminationreasonsName').focus();
                      
       }
     );
   }
 );
 
- AUI().ready('event', 'node', function(A){
-
+AUI().ready('event', 'node','transition',function(A){
   A.one('#addterminationreasonsForm').hide();
+  setTimeout(function(){
+    A.one('#addTerminationReasonMessage').transition('fadeOut');
+    A.one('#addTerminationReasonMessage').hide();
+},2000)
  });
 
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#cancel');
+    var node = A.one('#terminationreasoncancel');
     node.on(
       'click',
       function() {
@@ -103,37 +109,49 @@ AUI().use(
 );
 
 </aui:script>
-</head>
-
-<body>
-	<div id="terminationreasonsAddDelete" class="span12">
-		<a href="#" id="add">Add</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" id="delete">Delete</a>
-
-	</div>
-	<div  id="addterminationreasonsForm">
-	<aui:form name="myForm" action="<%=saveterminationreasons.toString()%>" >
-		<aui:input name="terminationreasonsId" type="hidden" id="terminationreasonsId" />
-	
-		<div class="span12">
-			<div class="span2">
-				<label>Name</label>
-		</div>
-		<div class="span3">		
-		 <input name="<portlet:namespace/>terminationreasonsName" type="text" required = "required">
+<% Logger log=Logger.getLogger(this.getClass().getName());%>
+ <% if(SessionMessages.contains(renderRequest.getPortletSession(),"termination-form-error")){%>
+<p id="addTerminationReasonMessage" class="alert alert-error"><liferay-ui:message key="Please Enter TerminationReason"/></p>
+<%} 
+ if(SessionMessages.contains(renderRequest.getPortletSession(),"termination-form-duplicate-error")){
+%>
+<p id="addTerminationReasonMessage" class="alert alert-error"><liferay-ui:message key="TerminationName already Exits"/></p>
+<%} 
+%>
+		
+	<div class="row-fluid">
+		<div id="terminationreasonsAddDelete" class="span12 text-right">
+			<div class="control-group">
+				<a href="#" class="btn btn-primary" id="terminationreasonadd"><i class="icon-plus"></i> Add</a>
+				<a href="#" class="btn btn-danger" id="terminationreasondelete"><i class="icon-trash"></i> Delete</a>
 			</div>
 		</div>
-		<aui:button type="submit" value="Submit" />
-		<aui:button  type="reset" value="Cancel" id ="cancel"/>
-		
-	</aui:form>
+		<div  id="addterminationreasonsForm">
+			<div class="panel">
+				<div class="panel-heading">
+					<h4>Add</h4>
+				</div>
+				<div class="panel-body">
+					<aui:form name="myForm" action="<%=saveterminationreasons.toString()%>" >
+						<aui:input name="terminationreasonsId" type="hidden" id="terminationreasonsId" />
+						<div class="form-inline">
+							<label>TerminationReason Name: </label>
+							<input name="<portlet:namespace/>terminationreasonsName" id="terminationreasonsName" type="text">
+							<button type="submit" class="btn btn-primary"><i class="icon-ok"></i> Submit</button>
+							<button  type="reset" id ="terminationreasoncancel" class="btn btn-danger"><i class="icon-remove"></i> Cancel</button>
+						</div>
+					</aui:form>
+				</div>
+			</div>
+		</div>
 	</div>
 	
-	 <div><label style="color: white" >.</label></div>
 	
-</body>
+		
+
 
  <%
-
+log.info("add.jsp in terminationreasons-portlet");
 PortletURL iteratorURL = renderResponse.createRenderURL();
 iteratorURL.setParameter("mvcPath", "/html/terminationreasons/add.jsp");
 RowChecker rowChecker = new RowChecker(renderResponse);
@@ -153,7 +171,12 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	
 	sortByType = portalPrefs.getValue("NAME_SPACE", "sort-by-type ", "asc");   
 }
-
+long groupID=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery dynamicQuery=DynamicQueryFactoryUtil.
+forClass(TerminationReasons.class, PortletClassLoaderUtil.getClassLoader());
+dynamicQuery.add(RestrictionsFactoryUtil.eq("groupId", groupID));
+List<TerminationReasons> terminationReasonsList=TerminationReasonsLocalServiceUtil
+.dynamicQuery(dynamicQuery);
 %>
 <%!
   com.liferay.portal.kernel.dao.search.SearchContainer<TerminationReasons> searchContainer;
@@ -167,13 +190,20 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	<liferay-ui:search-container-results>
 
 		<%
-            List<TerminationReasons> terminationReasonsList = TerminationReasonsLocalServiceUtil.getTerminationReasonses(searchContainer.getStart(), searchContainer.getEnd());
+		  List<TerminationReasons> pageList = ListUtil.subList(terminationReasonsList, searchContainer.getStart(), searchContainer.getEnd());
 		OrderByComparator orderByComparator =  CustomComparatorUtil.getterminationreasonsOrderByComparator(sortByCol, sortByType);
    
-               Collections.sort(terminationReasonsList,orderByComparator);
+               Collections.sort(pageList,orderByComparator);
+               
+               if(terminationReasonsList.size()>5){
   
-               results = terminationReasonsList;
-               total = TerminationReasonsLocalServiceUtil.getTerminationReasonsesCount();
+               results = ListUtil.subList(terminationReasonsList, searchContainer.getStart(), 
+            		   searchContainer.getEnd());
+               }
+               else{
+            	   results = terminationReasonsList;
+               }
+               total = terminationReasonsList.size();
                pageContext.setAttribute("results", results);
                pageContext.setAttribute("total", total);
 
@@ -184,7 +214,7 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 		keyProperty="terminationreasonsId" modelVar="terminationreasonsId" rowVar="curRow"
 		escapedModel="<%= true %>">
 		<liferay-ui:search-container-column-text orderable="<%=true %>"
-			name="TerminationReason Name" property="terminationreasonsName"
+			name="Name" property="terminationreasonsName"
 			orderableProperty="terminationreasonsName" />
 		<liferay-ui:search-container-column-jsp name="Edit"
 			path="/html/terminationreasons/editClick.jsp" />

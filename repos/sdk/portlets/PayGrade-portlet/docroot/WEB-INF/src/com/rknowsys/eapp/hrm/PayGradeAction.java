@@ -2,6 +2,7 @@ package com.rknowsys.eapp.hrm;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -10,10 +11,17 @@ import javax.portlet.PortletSession;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
+import org.apache.log4j.Logger;
+
 import com.liferay.counter.service.CounterLocalServiceUtil;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.util.bridges.mvc.MVCPortlet;
@@ -28,6 +36,7 @@ import com.rknowsys.eapp.hrm.service.PayGradeLocalServiceUtil;
  * 
  */
 public class PayGradeAction extends MVCPortlet {
+	private static Logger log = Logger.getLogger(PayGradeAction.class);
 
 	Date date = new Date();
 
@@ -44,28 +53,65 @@ public class PayGradeAction extends MVCPortlet {
 	public void savePayGrade(ActionRequest actionRequest,
 			ActionResponse actionResponse) throws IOException {
 
-		System.out.println("inside PayGradeAction payGrade() method....");
+		log.info("inside PayGradeAction payGrade() method....");
 
-		System.out.println("inside savePayGrade...");
+		log.info("inside savePayGrade...");
 		ThemeDisplay themeDisplay = (ThemeDisplay) actionRequest
 				.getAttribute(WebKeys.THEME_DISPLAY);
+		String inputName = ParamUtil.getString(actionRequest,"paygradeName");
+		log.info(inputName);
+		String paygradeName = inputName.trim();
 
 		try {
+			if(paygradeName == null || paygradeName.equals("")){
+				
+				log.info("Empty value in paygradeName...");
+				SessionMessages.add(actionRequest.getPortletSession(),
+						"paygradeName-empty-error");
+				actionResponse.setRenderParameter("mvcPath",
+						"/html/paygrade/addpaygrade.jsp");
+				
+			}
+			else{
 
-			PayGrade paygrade = PayGradeLocalServiceUtil
-					.createPayGrade(CounterLocalServiceUtil.increment());
+			
 			String id = ParamUtil.getString(actionRequest, "paygradeId");
+			
+			
 
-			System.out.println("id == " + id);
+			log.info("id == " + id);
 			if (id == "" || id == null) {
-				System.out.println("inside if loop..");
-
+				log.info("inside if loop..");
+				
+				DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(PayGrade.class, PortalClassLoaderUtil.getClassLoader());
+				dynamicQuery.add(RestrictionsFactoryUtil.eq("payGradeName", paygradeName));
+				dynamicQuery.add(RestrictionsFactoryUtil.eq("groupId", themeDisplay.getLayout().getGroup().getGroupId()));
+				@SuppressWarnings("unchecked")
+				List<PayGrade> list = PayGradeLocalServiceUtil.dynamicQuery(dynamicQuery);
+				if(list.size()>0){
+					PayGrade payGrade = list.get(0);
+					if(payGrade.getPayGradeName().equals(paygradeName)){
+						log.info("Duplicate Name in paygradeName");
+						
+						SessionMessages.add(actionRequest.getPortletSession(),
+								"paygradeName-duplicate-error");
+						actionResponse.setRenderParameter("mvcPath",
+								"/html/paygrade/addpaygrade.jsp");
+						
+					}
+				}
+				else{
+				
+				
+				PayGrade paygrade = PayGradeLocalServiceUtil
+						.createPayGrade(CounterLocalServiceUtil.increment());
+			
 				paygrade.setPayGradeName(ParamUtil.getString(actionRequest,
 						"paygradeName"));
 				paygrade.setCreateDate(date);
 				paygrade.setModifiedDate(date);
 				paygrade.setCompanyId(themeDisplay.getCompanyId());
-				paygrade.setGroupId(themeDisplay.getCompanyGroupId());
+				paygrade.setGroupId(themeDisplay.getLayout().getGroup().getGroupId());
 				paygrade.setUserId(themeDisplay.getUserId());
 
 				paygrade = PayGradeLocalServiceUtil.addPayGrade(paygrade);
@@ -81,10 +127,11 @@ public class PayGradeAction extends MVCPortlet {
 				actionResponse.setRenderParameter("jspPage",
 						"/html/paygrade/editpaygrade.jsp");
 
-				System.out.println("end of if block...");
+				log.info("end of if block...");
+				}
 			} else {
 
-				System.out.println("else block to update...");
+				log.info("else block to update...");
 
 				long paygradeid = Long.parseLong(id);
 
@@ -96,24 +143,23 @@ public class PayGradeAction extends MVCPortlet {
 						"paygradeName"));
 				payGrade2.setModifiedDate(date);
 				payGrade2.setCompanyId(themeDisplay.getCompanyId());
-				payGrade2.setGroupId(themeDisplay.getCompanyGroupId());
+				payGrade2.setGroupId(themeDisplay.getLayout().getGroup().getGroupId());
 				payGrade2.setUserId(themeDisplay.getUserId());
 				payGrade2 = PayGradeLocalServiceUtil.updatePayGrade(payGrade2);
 
-				System.out.println("end of else block...");
+				log.info("end of else block...");
 
+			}
 			}
 		} catch (SystemException e) {
 
-			e.printStackTrace();
-			System.out.println("system exception...");
+			log.error(e);
 		} catch (PortalException e) {
 
-			e.printStackTrace();
-			System.out.println("portalexception....");
+			log.error(e);
 		}
-		System.out.println("end of the savePayGrade method");
-		System.out.println("end of the method...");
+		log.info("end of the savePayGrade method");
+		log.info("end of the method...");
 
 	}
 
@@ -133,28 +179,65 @@ public class PayGradeAction extends MVCPortlet {
 			ActionResponse actionResponse) throws IOException, SystemException,
 			PortalException {
 
-		System.out.println("inside savePayGradeCurrency..........");
+		log.info("inside savePayGradeCurrency..........");
 		ThemeDisplay themeDisplay = (ThemeDisplay) actionRequest
 				.getAttribute(WebKeys.THEME_DISPLAY);
+		
+		String payGradeCurrency = ParamUtil.getString(actionRequest, "currency");
+		log.info(payGradeCurrency);
+		String currency = payGradeCurrency.trim();
+		
+		if(currency == null || currency.equals("")){
+			log.info("empty value in paygradecurrency");
+			
+			SessionMessages.add(actionRequest.getPortletSession(),
+					"paygradecurrency-empty-error");
+			actionResponse.setRenderParameter("mvcPath",
+					"/html/paygrade/editpaygrade.jsp");
+			
+		}
+		else{
 		String id = ParamUtil.getString(actionRequest, "paygradecurrencyId");
-		System.out.println("id == " + id);
+		Long paygradeid = ParamUtil.getLong(actionRequest, "paygradeId");
+		log.info("id == " + id);
 		if (id == "" || id == null) {
+			
+			DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(PayGradeCurrency.class,PortalClassLoaderUtil.getClassLoader());
+			dynamicQuery.add(RestrictionsFactoryUtil.eq("currency", payGradeCurrency));
+			dynamicQuery.add(RestrictionsFactoryUtil.eq("payGradeId", paygradeid));
+			dynamicQuery.add(RestrictionsFactoryUtil.eq("groupId", themeDisplay.getLayout().getGroup().getGroupId()));
+			@SuppressWarnings("unchecked")
+			List<PayGradeCurrency> payGradeCurrencies = PayGradeLocalServiceUtil.dynamicQuery(dynamicQuery);
+			if(payGradeCurrencies.size()>0){
+				
+				PayGradeCurrency payGradeCurrency2 = payGradeCurrencies.get(0);
+				if(payGradeCurrency2.getCurrency().equals(currency)){
+					log.info("duplicate name in paygradecurrency");
+					SessionMessages.add(actionRequest.getPortletSession(),
+							"paygradecurrency-duplicate-error");
+					actionResponse.setRenderParameter("mvcPath",
+							"/html/paygrade/editpaygrade.jsp");
+				}
+				
+			}
+			else{
+			
+			
 			PayGradeCurrency paygradecurrency = PayGradeCurrencyLocalServiceUtil
 					.createPayGradeCurrency(CounterLocalServiceUtil.increment());
-			String currency = ParamUtil.getString(actionRequest, "currency");
+			
 			long minsal = ParamUtil.getLong(actionRequest, "minSalary");
 			long maxsal = ParamUtil.getLong(actionRequest, "maxSalary");
-			long paygradeid = ParamUtil.getLong(actionRequest, "paygradeId");
-			System.out.println("values == " + currency + " , " + minsal + " ,"
+			log.info("values == " + currency + " , " + minsal + " ,"
 					+ maxsal);
-			System.out.println("paygradeId == " + paygradeid);
+			log.info("paygradeId == " + paygradeid);
 			paygradecurrency.setCurrency(currency);
 			paygradecurrency.setMinSalary(minsal);
 			paygradecurrency.setMaxSalary(maxsal);
 			paygradecurrency.setCreateDate(date);
 			paygradecurrency.setModifiedDate(date);
 			paygradecurrency.setCompanyId(themeDisplay.getCompanyId());
-			paygradecurrency.setGroupId(themeDisplay.getCompanyGroupId());
+			paygradecurrency.setGroupId(themeDisplay.getLayout().getGroup().getGroupId());
 			paygradecurrency.setUserId(themeDisplay.getUserId());
 
 			paygradecurrency.setPayGradeId(paygradeid);
@@ -169,17 +252,19 @@ public class PayGradeAction extends MVCPortlet {
 
 			actionResponse.setRenderParameter("jspPage",
 					"/html/paygrade/editpaygrade.jsp");
-			System.out.println("end of method savePayGradeCurrency...");
-		} else {
-			System.out.println("else block to update...");
+			log.info("end of method savePayGradeCurrency...");
+			}
+		}
+		 else {
+			 log.info("else block to update...");
 			long paygradecurrencyid = Long.parseLong(id);
 
 			PayGradeCurrency payGradeCurrency2 = PayGradeCurrencyLocalServiceUtil
 					.getPayGradeCurrency(paygradecurrencyid);
-			String currency = ParamUtil.getString(actionRequest, "currency");
+			
 			long minsal = ParamUtil.getLong(actionRequest, "minSalary");
 			long maxsal = ParamUtil.getLong(actionRequest, "maxSalary");
-			long paygradeid = ParamUtil.getLong(actionRequest, "paygradeId");
+			
 			payGradeCurrency2.setPayGradeCurrencyId(ParamUtil.getLong(
 					actionRequest, "paygradecurrencyId"));
 
@@ -188,7 +273,7 @@ public class PayGradeAction extends MVCPortlet {
 			payGradeCurrency2.setMaxSalary(maxsal);
 			payGradeCurrency2.setModifiedDate(date);
 			payGradeCurrency2.setCompanyId(themeDisplay.getCompanyId());
-			payGradeCurrency2.setGroupId(themeDisplay.getCompanyGroupId());
+			payGradeCurrency2.setGroupId(themeDisplay.getLayout().getGroup().getGroupId());
 			payGradeCurrency2.setUserId(themeDisplay.getUserId());
 
 			payGradeCurrency2.setPayGradeId(paygradeid);
@@ -203,7 +288,9 @@ public class PayGradeAction extends MVCPortlet {
 			actionResponse.setRenderParameter("jspPage",
 					"/html/paygrade/editpaygrade.jsp");
 
-			System.out.println("end of else block...");
+			log.info("end of else block...");
+		}
+		
 		}
 	}
 
@@ -226,10 +313,10 @@ public class PayGradeAction extends MVCPortlet {
 			ActionResponse actionResponse) throws IOException,
 			PortletException, NumberFormatException, PortalException,
 			SystemException {
-		System.out.println("inside editPayGrade...");
+		log.info("inside editPayGrade...");
 		String s = ParamUtil.getString(actionRequest, "id");
 
-		System.out.println("id == " + s);
+		log.info("id == " + s);
 
 		PayGrade paygrade = PayGradeLocalServiceUtil.getPayGrade(Long
 				.parseLong(s));
@@ -258,10 +345,10 @@ public class PayGradeAction extends MVCPortlet {
 			ActionResponse actionResponse) throws IOException,
 			PortletException, NumberFormatException, PortalException,
 			SystemException {
-		System.out.println("inside editPayGradeCurrency...");
+		log.info("inside editPayGradeCurrency...");
 		String s = ParamUtil.getString(actionRequest, "id");
 
-		System.out.println("id == " + s);
+		log.info("id == " + s);
 
 		PayGradeCurrency paygradecurrency = PayGradeCurrencyLocalServiceUtil
 				.getPayGradeCurrency(Long.parseLong(s));
@@ -286,59 +373,56 @@ public class PayGradeAction extends MVCPortlet {
 			NumberFormatException {
 		if (resourceRequest.getResourceID().equals("deletePayGrade")) {
 
-			System.out.println("inside deletePayGrade...serveResource");
+			log.info("inside deletePayGrade...serveResource");
 
 			PayGrade paygrade;
 			try {
 
 				paygrade = PayGradeLocalServiceUtil
 						.createPayGrade(CounterLocalServiceUtil.increment());
+				log.info(paygrade);
 			} catch (SystemException e1) {
 
-				e1.printStackTrace();
+				log.error(e1);
 			}
 			String[] idsArray = ParamUtil.getParameterValues(resourceRequest,
 					"paygradeIds");
 
-			System.out.println("idsArray== " + idsArray.length);
+			log.info("idsArray== " + idsArray.length);
 			for (int i = 0; i <= idsArray.length - 1; i++) {
 
-				System.out.println("ids == " + idsArray[i]);
+				log.info("ids == " + idsArray[i]);
 
 			}
 			for (int i = 0; i <= idsArray.length - 1; i++) {
 
-				System.out.println("id == " + idsArray[i]);
+				log.info("id == " + idsArray[i]);
 				if (idsArray[i].equals("on")) {
 
-					System.out.println("All records selected...");
+					log.info("All records selected...");
 				} else {
 					try {
 
 						paygrade = PayGradeLocalServiceUtil.deletePayGrade(Long
 								.parseLong(idsArray[i]));
 
-						System.out.println("end of try block in delete...");
+						log.info("end of try block in delete...");
 
 					} catch (PortalException e) {
-
-						e.printStackTrace();
-						System.out.println("portal exception...");
+						log.error(e);
 					} catch (SystemException e) {
-
-						e.printStackTrace();
-						System.out.println("system exception...");
+						log.error(e);
 
 					}
 				}
 
 			}
-			System.out.println("end of for loop...");
+			log.info("end of for loop...");
 
 		}
 		if (resourceRequest.getResourceID().equals("deletePayGradeCurrency")) {
 
-			System.out.println("inside deletePayGradeCurrency...serveResource");
+			log.info("inside deletePayGradeCurrency...serveResource");
 
 			PayGradeCurrency paygradecurrency;
 			try {
@@ -346,25 +430,26 @@ public class PayGradeAction extends MVCPortlet {
 				paygradecurrency = PayGradeCurrencyLocalServiceUtil
 						.createPayGradeCurrency(CounterLocalServiceUtil
 								.increment());
+				log.info(paygradecurrency);
 			} catch (SystemException e1) {
 
-				e1.printStackTrace();
+				log.error(e1);
 			}
 			String[] idsArray = ParamUtil.getParameterValues(resourceRequest,
 					"paygradecurrencyIds");
 
-			System.out.println("idsArray== " + idsArray.length);
+			log.info("idsArray== " + idsArray.length);
 			for (int i = 0; i <= idsArray.length - 1; i++) {
 
-				System.out.println("ids == " + idsArray[i]);
+				log.info("ids == " + idsArray[i]);
 
 			}
 			for (int i = 0; i <= idsArray.length - 1; i++) {
 
-				System.out.println("id == " + idsArray[i]);
+				log.info("id == " + idsArray[i]);
 				if (idsArray[i].equals("on")) {
 
-					System.out.println("All records selected...");
+					log.info("All records selected...");
 				} else {
 					try {
 
@@ -372,26 +457,24 @@ public class PayGradeAction extends MVCPortlet {
 								.deletePayGradeCurrency(Long
 										.parseLong(idsArray[i]));
 
-						System.out.println("end of try block in delete...");
+						log.info("end of try block in delete...");
 
 					} catch (PortalException e) {
 
-						e.printStackTrace();
-						System.out.println("portal exception...");
+						log.error(e);
 					} catch (SystemException e) {
 
-						e.printStackTrace();
-						System.out.println("system exception...");
+						log.error(e);
 
 					}
 				}
 
 			}
-			System.out.println("end of for loop...");
+			log.info("end of for loop...");
 
 		}
 
-		System.out.println("end of deletePayGrade...");
+		log.info("end of deletePayGrade...");
 
 	}
 

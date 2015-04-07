@@ -21,9 +21,10 @@ var A=new AUI();
 	long fileEntryId = (Long) empId.get("fileId");
 	String firstName, middleName, lastName, empNo, otherId, licenseNumber, gender, nationality, maritslStatus;
 	Long personalDetailsId;
-	Date dateOfB, licenseExpDate;
+	String dateOfB, licenseExpDate;
 	nationality = "";
 	long nationalityId = 0;
+	SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/YYYY");
 	//Date k = new Date();
 	//long employeeId = Long.parseLong(empId);
 	DynamicQuery personalDetailsDynamicQuery = DynamicQueryFactoryUtil
@@ -47,8 +48,8 @@ var A=new AUI();
 				.getOtherId() : "";
 		licenseNumber = empPersonalDetails.getLicenseNo() != null ? empPersonalDetails
 				.getLicenseNo() : "";
-		licenseExpDate = empPersonalDetails.getLicenseExpDate() != null ? empPersonalDetails
-				.getLicenseExpDate() : new Date();
+		licenseExpDate = empPersonalDetails.getLicenseExpDate() != null ? sdf.format(empPersonalDetails
+				.getLicenseExpDate()) : "";
 		gender = String.valueOf(empPersonalDetails.getGender()) != null ? String
 				.valueOf(empPersonalDetails.getGender()) : "";
 		Nationality empNationality2 = null;
@@ -71,8 +72,8 @@ var A=new AUI();
 		maritslStatus = String.valueOf(empPersonalDetails
 				.getMaritalStatus()) != null ? String
 				.valueOf(empPersonalDetails.getMaritalStatus()) : "";
-		dateOfB = empPersonalDetails.getDateOfBirth() != null ? empPersonalDetails
-				.getDateOfBirth() : new Date();
+		dateOfB = empPersonalDetails.getDateOfBirth() != null ?sdf.format( empPersonalDetails
+				.getDateOfBirth()) : "";
 	} else {
 		personalDetailsId = 0l;
 		firstName = "";
@@ -81,11 +82,11 @@ var A=new AUI();
 		empNo = "";
 		otherId = "";
 		licenseNumber = "";
-		licenseExpDate = new Date();
+		licenseExpDate = "";
 		gender = "";
 		nationality = "";
 		maritslStatus = "";
-		dateOfB = new Date();
+		dateOfB = "";
 	}
 %>
 <aui:script use="aui-base,aui-node,aui-io-request-deprecated">
@@ -136,75 +137,38 @@ if(maritalStatus=="single")
 	<div class="panel-body">
 		<aui:form name="empPersonalDetailsSave" id="empPersonalDetailsSave"
 			method="post" action="<%=updateEmpPersonalDetails%>">
+			<div class="form-horizontal">
 			<aui:input name="personalDetailsId" type="hidden"
 				value="<%=personalDetailsId%>"></aui:input>
 			<aui:input name="perEmpId" type="hidden" value="<%=employeeId%>"></aui:input>
 			<aui:input name="fileIdemp" type="hidden" value="<%=fileEntryId%>"></aui:input>
-			<div class="row-fluid">
-				<div class="span8">
 					<aui:input name="firstName" label="01_firstName"
 						showRequiredLabel="false" disabled="true" value="<%=firstName%>">
 						<aui:validator name="required"></aui:validator>
 					</aui:input>
-				</div>
-				<div class="row-fluid">
-					<div class="span8">
 						<aui:input name="middleName" label="01_middleName"
 							showRequiredLabel="false" disabled="true" value="<%=middleName%>"></aui:input>
-					</div>
-				</div>
-				<div class="row-fluid">
-					<div class="span8">
 						<aui:input name="lastName" label="01_lastName"
 							showRequiredLabel="false" disabled="true" value="<%=lastName%>">
 							<aui:validator name="required"></aui:validator>
 						</aui:input>
-					</div>
-				</div>
-			</div>
-			<div class="row-fluid">
-				<div class="span8">
 					<aui:input name="employee_no" label="01_emp-no" disabled="true"
 						inlineLabel="left" value="<%=empNo%>"></aui:input>
-				</div>
-			</div>
-			<div class="row-fluid">
-				<div class="span8">
 					<aui:input name="other_id" label="01_other-id" inlineLabel="left"
 						disabled="true" value="<%=otherId%>">
 					</aui:input>
-				</div>
-			</div>
-			<div class="row-fluid">
-				<div class="span8">
 					<aui:input name="driver_license_no" label="01_driver-license-no"
 						inlineLabel="left" disabled="true" value="<%=licenseNumber%>"></aui:input>
-				</div>
-			</div>
-			<div class="row-fluid">
-				<div class="span8">
 					<aui:input name="expiry_date" label="01_expiry-date"
 						inlineLabel="left" disabled="true" value='<%=licenseExpDate%>'
-						cssClass="dateEmployee"></aui:input>
-				</div>
-			</div>
-			<div class="row-fluid">
-				<div class="span7">
-					<div class="span3">
-						<label><liferay-ui:message key="01_gender" /></label>
-					</div>
-					<div class="span2">
-						<aui:input inlineLabel="right" name="gender" type="radio"
-							id="genderMale" value="male" label="01_male" disabled="true" />
-					</div>
-					<div class="span2">
-						<aui:input inlineLabel="right" name="gender" id="genderFemale"
-							type="radio" value="female" label="01_female" disabled="true" />
-					</div>
-				</div>
-			</div>
-			<div class="row-fluid">
-				<div class="span8">
+						cssClass="dateEmployee" placeholder="MM/DD/YYYY"></aui:input>
+						 <div class="control-group form-inline">
+							<label class="control-label"><liferay-ui:message key="01_gender" /></label>
+							<aui:input inlineLabel="right" name="gender" type="radio"
+								id="genderMale" value="male" label="01_male" disabled="true" />
+							<aui:input inlineLabel="right" name="gender" id="genderFemale"
+								type="radio" value="female" label="01_female" disabled="true" />
+							</div>
 					<aui:select name="marital_status" label="01_marital-status"
 						inlineLabel="left" disabled="true">
 						<aui:option selected="selected" value="" label="01_select"></aui:option>
@@ -212,10 +176,6 @@ if(maritalStatus=="single")
 						<aui:option id="maritalStatus_married" value="married" label="01_married"></aui:option>
 						<aui:option id="maritalStatus_other" value="other" label="01_other"></aui:option>
 					</aui:select>
-				</div>
-			</div>
-			<div class="row-fluid">
-				<div class="span8">
 					<aui:select name="emp_nationality" label="01_nationality"
 						disabled="true">
 						<%
@@ -245,19 +205,19 @@ if(maritalStatus=="single")
 									}
 						%>
 					</aui:select>
-				</div>
-			</div>
-			<div class="row-fluid">
-				<div class="span8">
+
 					<aui:input name="date_of_birth" label="01_date-of-birth"
-						inlineLabel="left" cssClass="dateEmployee" value='<%=dateOfB%>'>
+						inlineLabel="left" cssClass="dateEmployee" value='<%=dateOfB%>' placeholder="MM/DD/YYYY" >
 					</aui:input>
-				</div>
+					<div class="control-group">
+						<div class="controls">
+						<aui:button id="editPersonalDetails" name="editPersonalDetails"
+							value="Edit" cssClass="button btn-success"></aui:button>
+						<aui:button id="savePersonalDetails" name="savePersonalDetails"
+							value="Save" type="submit" cssClass="button btn-primary"></aui:button>
+						</div>
+					</div>
 			</div>
-			<aui:button id="editPersonalDetails" name="editPersonalDetails"
-				value="Edit" cssClass="button btn-success"></aui:button>
-			<aui:button id="savePersonalDetails" name="savePersonalDetails"
-				value="Save" type="submit" cssClass="button btn-primary"></aui:button>
 		</aui:form>
 	</div>
 </div>

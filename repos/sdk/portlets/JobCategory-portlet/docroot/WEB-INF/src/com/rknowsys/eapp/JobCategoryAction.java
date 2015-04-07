@@ -2,16 +2,26 @@ package com.rknowsys.eapp;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
+import javax.portlet.PortletSession;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
+
+import org.apache.log4j.Logger;
+
 import com.liferay.counter.service.CounterLocalServiceUtil;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.util.bridges.mvc.MVCPortlet;
@@ -24,6 +34,8 @@ import com.rknowsys.eapp.hrm.service.JobCategoryLocalServiceUtil;
  * 
  */
 public class JobCategoryAction extends MVCPortlet {
+
+	private static Logger log = Logger.getLogger(JobCategoryAction.class);
 
 	Date date = new Date();
 
@@ -42,67 +54,152 @@ public class JobCategoryAction extends MVCPortlet {
 	public void saveJobcategory(ActionRequest actionRequest,
 			ActionResponse actionResponse) throws IOException,
 			PortletException, SystemException {
-		System.out.println("inside saveJobCategory...");
+		log.info("Entered into saveJobCategory method in JobCategoryAction");
 		ThemeDisplay themeDisplay = (ThemeDisplay) actionRequest
 				.getAttribute(WebKeys.THEME_DISPLAY);
-		System.out.println("company Id == " + themeDisplay.getCompanyId());
-		System.out.println("userId = " + themeDisplay.getUserId());
-		System.out.println("groupId = " + themeDisplay.getCompanyGroupId());
+		String id = ParamUtil.getString(actionRequest, "jobcategoryId");
+		String inputName = ParamUtil.getString(actionRequest, "jobcategory");
+		String jobcategoryName = inputName.trim();
+		log.info(id);
+		log.info(inputName);
+
 		try {
-			JobCategory jobcategory = JobCategoryLocalServiceUtil
-					.createJobCategory(CounterLocalServiceUtil.increment());
-
-			System.out.println("Name = "
-					+ ParamUtil.getString(actionRequest, "jobcategoryId"));
-			System.out.println("country = "
-					+ ParamUtil.getString(actionRequest, "jobcategory"));
-			String id = ParamUtil.getString(actionRequest, "jobcategoryId");
-			System.out.println("id == " + id);
 			if (id == "" || id == null) {
-				System.out.println("inside if loop...");
-				jobcategory.setJobcategory(ParamUtil.getString(actionRequest,
-						"jobcategory"));
-				jobcategory.setCreateDate(date);
-				jobcategory.setModifiedDate(date);
-				jobcategory.setCompanyId(themeDisplay.getCompanyId());
-				jobcategory.setGroupId(themeDisplay.getCompanyGroupId());
-				jobcategory.setUserId(themeDisplay.getUserId());
-				jobcategory = JobCategoryLocalServiceUtil
-						.addJobCategory(jobcategory);
-				System.out.println("end of if block");
+				log.info("if looop");
+				if (jobcategoryName == null || jobcategoryName.equals("")) {
+
+					log.info("Empty value in jobCategoryName");
+
+					SessionMessages.add(actionRequest.getPortletSession(),
+							"jobcategoryName-empty-error");
+					actionResponse.setRenderParameter("mvcPath",
+							"/html/jobcategory/add.jsp");
+				} else {
+
+					DynamicQuery dynamicQuery = DynamicQueryFactoryUtil
+							.forClass(JobCategory.class,
+									PortalClassLoaderUtil.getClassLoader());
+					dynamicQuery.add(RestrictionsFactoryUtil.eq("jobcategory",
+							inputName));
+					dynamicQuery.add(RestrictionsFactoryUtil.eq("groupId",
+							themeDisplay.getLayout().getGroup().getGroupId()));
+					@SuppressWarnings("unchecked")
+					List<JobCategory> jobCategories = JobCategoryLocalServiceUtil
+							.dynamicQuery(dynamicQuery);
+					if (jobCategories.size() > 0) {
+
+						JobCategory category = jobCategories.get(0);
+						if (category.getJobcategory().equalsIgnoreCase(
+								inputName)) {
+							log.info("DuplicateName in JobCategoryName");
+
+							SessionMessages.add(
+									actionRequest.getPortletSession(),
+									"jobCategoryName-duplicate-error");
+							actionResponse.setRenderParameter("mvcPath",
+									"/html/jobcategory/add.jsp");
+
+						}
+
+					}
+
+					else {
+
+						JobCategory jobcategory = JobCategoryLocalServiceUtil
+								.createJobCategory(CounterLocalServiceUtil
+										.increment());
+
+						jobcategory.setJobcategory(ParamUtil.getString(
+								actionRequest, "jobcategory"));
+						jobcategory.setCreateDate(date);
+						jobcategory.setModifiedDate(date);
+						jobcategory.setCompanyId(themeDisplay.getCompanyId());
+						jobcategory.setGroupId(themeDisplay.getLayout()
+								.getGroup().getGroupId());
+						jobcategory.setUserId(themeDisplay.getUserId());
+						jobcategory = JobCategoryLocalServiceUtil
+								.addJobCategory(jobcategory);
+						log.info("New jobCategoryName added");
+					}
+				}
 			} else {
-				System.out.println("else block to update...");
+				JobCategory job = JobCategoryLocalServiceUtil
+						.getJobCategory(Long.parseLong(id));
+				log.info("else block to update the jobCategoryName");
+				if (jobcategoryName == null || jobcategoryName.equals("")) {
+					log.info("empty value in jobcategory name in edit.jsp");
 
-				long jobcategoryid = Long.parseLong(id);
+					
 
-				JobCategory jobcategory1 = JobCategoryLocalServiceUtil
-						.getJobCategory(jobcategoryid);
+					PortletSession portletSession = actionRequest
+							.getPortletSession();
+					portletSession.setAttribute("editjobcategory", job);
+					SessionMessages.add(actionRequest.getPortletSession(),
+							"jobcategoryName-empty-error");
+					actionResponse.setRenderParameter("mvcPath",
+							"/html/jobcategory/edit.jsp");
+				} else {
+					
+					DynamicQuery dynamicQuery = DynamicQueryFactoryUtil
+							.forClass(JobCategory.class,
+									PortalClassLoaderUtil.getClassLoader());
+					dynamicQuery.add(RestrictionsFactoryUtil.eq("jobcategory",
+							inputName));
+					dynamicQuery.add(RestrictionsFactoryUtil.eq("groupId",
+							themeDisplay.getLayout().getGroup().getGroupId()));
+					@SuppressWarnings("unchecked")
+					List<JobCategory> jobCategories = JobCategoryLocalServiceUtil
+							.dynamicQuery(dynamicQuery);
+					log.info("list size ====== " +jobCategories.size());
+					if (jobCategories.size() > 0) {
+						log.info("if loop ...greater than one");
 
-				jobcategory1.setJobCategoryId(ParamUtil.getLong(actionRequest,
-						"jobcategoryId"));
+						JobCategory category = jobCategories.get(0);
+						if (category.getJobcategory().equalsIgnoreCase(
+								inputName) && !job.getJobcategory().equalsIgnoreCase(inputName)) {
+							log.info("DuplicateName in JobCategoryName");
 
-				jobcategory1.setJobcategory(ParamUtil.getString(actionRequest,
-						"jobcategory"));
-				jobcategory1.setModifiedDate(date);
-				jobcategory1.setCompanyId(themeDisplay.getCompanyId());
-				jobcategory1.setGroupId(themeDisplay.getCompanyGroupId());
-				jobcategory1.setUserId(themeDisplay.getUserId());
+							SessionMessages.add(
+									actionRequest.getPortletSession(),
+									"jobCategoryName-duplicate-error");
+							actionResponse.setRenderParameter("mvcPath",
+									"/html/jobcategory/add.jsp");
 
-				jobcategory1 = JobCategoryLocalServiceUtil
-						.updateJobCategory(jobcategory1);
-				System.out.println("end of else block");
+						}
 
+					}
+					else{
+
+					long jobcategoryid = Long.parseLong(id);
+
+					JobCategory jobcategory1 = JobCategoryLocalServiceUtil
+							.getJobCategory(jobcategoryid);
+
+					jobcategory1.setJobCategoryId(ParamUtil.getLong(
+							actionRequest, "jobcategoryId"));
+
+					jobcategory1.setJobcategory(ParamUtil.getString(
+							actionRequest, "jobcategory"));
+					jobcategory1.setModifiedDate(date);
+					jobcategory1.setCompanyId(themeDisplay.getCompanyId());
+					jobcategory1.setGroupId(themeDisplay.getLayout().getGroup()
+							.getGroupId());
+					jobcategory1.setUserId(themeDisplay.getUserId());
+
+					jobcategory1 = JobCategoryLocalServiceUtil
+							.updateJobCategory(jobcategory1);
+					log.info("jobcategoryName updated..");
+
+				}}
 			}
-		} catch (SystemException e) {
 
-			e.printStackTrace();
-			System.out.println("system exception");
+		} catch (SystemException e) {
+			log.error("SystemException " + e);
 		} catch (PortalException e) {
 
-			e.printStackTrace();
-			System.out.println("portalexception");
+			log.error("PortalException " + e);
 		}
-		System.out.println("end of the saveJobcategory method");
+		log.info("End of savejobcategory method");
 
 	}
 
@@ -125,48 +222,48 @@ public class JobCategoryAction extends MVCPortlet {
 			NumberFormatException {
 		if (resourceRequest.getResourceID().equals("deleteJobcategory")) {
 
-			System.out.println("inside deleteJobCategory... serveResource");
+			log.info("inside deleteJobCategory... serveResource");
 			JobCategory jobcategory;
 			try {
 				jobcategory = JobCategoryLocalServiceUtil
 						.createJobCategory(CounterLocalServiceUtil.increment());
+				log.info(jobcategory);
 			} catch (SystemException e1) {
 
-				e1.printStackTrace();
+				log.error("SystemException " + e1);
 			}
 			String[] idsArray = ParamUtil.getParameterValues(resourceRequest,
 					"jobcategoryIds");
 
-			System.out.println("idsArray== " + idsArray.length);
+			log.info("idsArray== " + idsArray.length);
 			for (int i = 0; i <= idsArray.length - 1; i++) {
-				System.out.println(idsArray[i]);
+				log.info(idsArray[i]);
 
 			}
 			for (int i = 0; i <= idsArray.length - 1; i++) {
-				System.out.println(idsArray[i]);
+				log.info(idsArray[i]);
 				if (idsArray[i].equals("on")) {
-					System.out.println("All records selected...");
+					log.info("All records selected...");
 				} else {
 					try {
 						jobcategory = JobCategoryLocalServiceUtil
 								.deleteJobCategory(Long.parseLong(idsArray[i]));
-						System.out.println("end of try block in delete...");
+						log.info("end of try block in delete...");
 					} catch (PortalException e) {
 
-						e.printStackTrace();
-						System.out.println("portal exception...");
+						log.error("PortalException " + e);
+
 					} catch (SystemException e) {
 
-						e.printStackTrace();
-						System.out.println("system exception...");
+						log.error("SystemException " + e);
 					}
 				}
 
 			}
-			System.out.println("end of for loop..");
+			log.info("end of for loop..");
 
 		}
-		System.out.println("end of deleteJobcategory method...");
+		log.info("end of deleteJobcategory method...");
 
 	}
 
@@ -189,15 +286,17 @@ public class JobCategoryAction extends MVCPortlet {
 			ActionResponse actionResponse) throws IOException,
 			PortletException, NumberFormatException, PortalException,
 			SystemException {
-		System.out.println("inside editJobCategory...");
+		log.info("inside editJobCategory...");
 		String s = ParamUtil.getString(actionRequest, "jobCategoryId");
 		System.out.println("id == " + s);
 		JobCategory job = JobCategoryLocalServiceUtil.getJobCategory(Long
 				.parseLong(s));
 
-		System.out.println(job.getJobCategoryId());
-		System.out.println(job.getJobcategory());
-		actionRequest.setAttribute("editjobcategory", job);
+		log.info(job.getJobCategoryId());
+		log.info(job.getJobcategory());
+
+		PortletSession portletSession = actionRequest.getPortletSession();
+		portletSession.setAttribute("editjobcategory", job);
 		actionResponse.setRenderParameter("jspPage",
 				"/html/jobcategory/edit.jsp");
 	}

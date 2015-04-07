@@ -24,8 +24,6 @@ import com.liferay.portlet.expando.model.ExpandoBridge;
 
 import java.io.Serializable;
 
-import java.sql.Blob;
-
 import java.util.Date;
 
 /**
@@ -331,6 +329,27 @@ public interface EmpJobModel extends BaseModel<EmpJob> {
 	public void setComments(String comments);
 
 	/**
+	 * Returns the is current job of this emp job.
+	 *
+	 * @return the is current job of this emp job
+	 */
+	public boolean getIsCurrentJob();
+
+	/**
+	 * Returns <code>true</code> if this emp job is is current job.
+	 *
+	 * @return <code>true</code> if this emp job is is current job; <code>false</code> otherwise
+	 */
+	public boolean isIsCurrentJob();
+
+	/**
+	 * Sets whether this emp job is is current job.
+	 *
+	 * @param isCurrentJob the is current job of this emp job
+	 */
+	public void setIsCurrentJob(boolean isCurrentJob);
+
+	/**
 	 * Returns the employment contract start date of this emp job.
 	 *
 	 * @return the employment contract start date of this emp job
@@ -357,20 +376,6 @@ public interface EmpJobModel extends BaseModel<EmpJob> {
 	 * @param employmentContractEndDate the employment contract end date of this emp job
 	 */
 	public void setEmploymentContractEndDate(Date employmentContractEndDate);
-
-	/**
-	 * Returns the contract details of this emp job.
-	 *
-	 * @return the contract details of this emp job
-	 */
-	public Blob getContractDetails();
-
-	/**
-	 * Sets the contract details of this emp job.
-	 *
-	 * @param contractDetails the contract details of this emp job
-	 */
-	public void setContractDetails(Blob contractDetails);
 
 	@Override
 	public boolean isNew();

@@ -1,3 +1,4 @@
+<%@page import="com.liferay.portal.kernel.servlet.SessionMessages"%>
 <%@ include file="/html/educationaction/init.jsp"%>
 
 <portlet:actionURL var="saveEducations" name="saveEducation">
@@ -6,19 +7,20 @@
 <portlet:renderURL var="listview">
 	<portlet:param name="mvcPath" value="/html/educationaction/addEducation.jsp" />
 </portlet:renderURL>
+
 <aui:script>
+
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#delete');
+    var node = A.one('#deleteeducation');
     node.on(
       'click',
       function() {
      var idArray = [];
-      A.all('input[type=checkbox]:checked').each(function(object) {
+       A.all('input[name=<portlet:namespace/>rowIds]:checked').each(function(object) {
       idArray.push(object.get("value"));
-    alert(idArray.length);
-        });
+     });
        if(idArray==""){
 			  alert("Please select records!");
 		  }else{
@@ -58,27 +60,33 @@ AUI().use(
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#add');
+    var node = A.one('#addeducation');
     node.on(
       'click',
       function() {
          A.one('#educationAddDelete').hide();
          A.one('#addEducationForm').show();
+         A.one('#educationName').focus();
                      
       }
     );
   }
 );
 
- AUI().ready('event', 'node', function(A){
+ AUI().ready('event', 'node','transition',function(A){
+ A.one('#addEducationForm').hide();
+setTimeout(function(){
+A.one('#addEducationMessage').transition('fadeOut');
+A.one('#addEducationMessage').hide();
+},2000)
 
-  A.one('#addEducationForm').hide();
- });
+});
+
 
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#cancel');
+    var node = A.one('#canceleducation');
     node.on(
       'click',
       function() {
@@ -91,36 +99,43 @@ AUI().use(
 );
 
 </aui:script>
-</head>
 
-<body>
+<% 
+if(SessionMessages.contains(renderRequest.getPortletSession(),"educationName-empty-error")){%>
+<p id="addEducationMessage" class="alert alert-error"><liferay-ui:message key="Please Enter Education Name"/></p>
+<%} 
+ if(SessionMessages.contains(renderRequest.getPortletSession(),"educationName-duplicate-error")){
+%>
+<p id="addEducationMessage" class="alert alert-error"><liferay-ui:message key="Education Name already Exits"/></p>
+<%} 
+%>
 	<div class="row-fluid">
 		<div id="educationAddDelete" class="span12 text-right">
-			<a href="#" class="btn btn-success" id="add"><i class="icon-plus"></i></a>
-			<a href="#" class="btn btn-danger" id="delete"><i class="icon-trash"></i></a>
+			<div class="control-group">
+			<a href="#" class="btn btn-primary" id="addeducation"><i class="icon-plus"></i> Add</a>
+			<a href="#" class="btn btn-danger" id="deleteeducation"><i class="icon-trash"></i> Delete</a>
+			</div>
 		</div>
-		<div  id="addEducationForm">
-		<aui:form name="myForm" action="<%=saveEducations.toString()%>" >
-			<aui:input name="educationId" type="hidden" id="educationId" />
-			<div class="row-fluid">
-				<div class="span2 text-right">
-					<label>Level</label>
+		<div id="addEducationForm">
+			<div class="panel">
+				<div class="panel-heading">
+					<h4>Add</h4>
 				</div>
-				<div class="span6">		
-				 <input name="<portlet:namespace/>education_level" type="text" required = "required">
+				<div class="panel-body">
+					<aui:form name="myForm" action="<%=saveEducations.toString()%>" >
+						<aui:input name="educationId" type="hidden" id="educationId" />
+						<div class="form-inline">
+							<label>Level: </label>
+							<input name="<portlet:namespace/>education_level" id="educationName" type="text">
+							<button type="submit" class="btn btn-primary"><i class="icon-ok"></i> Submit</button>
+							<button  type="reset" id ="canceleducation" class="btn btn-danger"><i class="icon-remove"></i> Cancel</button>
+						</div>
+					</aui:form>
 				</div>
 			</div>
-			<div class="row-fluid">
-				<div class="span6 offset2">
-					<aui:button type="submit" value="Submit" />
-					<aui:button  type="reset" value="Cancel" id ="cancel"/>
-				</div>
-			</div>
-		</aui:form>
 		</div>
 	</div>
-	
-</body>
+
 
 <%
 
@@ -143,6 +158,14 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	
 	sortByType = portalPrefs.getValue("NAME_SPACE", "sort-by-type ", "asc");   
 }
+long groupId=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery educationDynamicQuery = DynamicQueryFactoryUtil
+.forClass(Education.class,
+		PortletClassLoaderUtil.getClassLoader());
+educationDynamicQuery.add(PropertyFactoryUtil.forName("groupId")
+.eq(groupId));
+List<Education> educationDetails = EducationLocalServiceUtil
+.dynamicQuery(educationDynamicQuery);
 
 %>
 <%!
@@ -157,13 +180,18 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	<liferay-ui:search-container-results>
 
 		<%
-            List<Education> educationList = EducationLocalServiceUtil.getEducations(searchContainer.getStart(), searchContainer.getEnd());
-		OrderByComparator orderByComparator =  CustomComparatorUtil.getEducationOrderByComparator(sortByCol, sortByType);
-   
-               Collections.sort(educationList,orderByComparator);
-  
-               results = educationList;
-               total = EducationLocalServiceUtil.getEducationsCount();
+		  List<Education> educationList = ListUtil.subList(educationDetails, searchContainer.getStart(), searchContainer.getEnd());
+		
+				OrderByComparator orderByComparator =  CustomComparatorUtil.getEducationOrderByComparator(sortByCol, sortByType);
+		   
+		               Collections.sort(educationList,orderByComparator);
+		     if(educationDetails.size()>5){
+		    	 results = educationList;
+		     }
+		     else{
+		           results = educationDetails;
+		     }
+		       total = educationDetails.size();
                pageContext.setAttribute("results", results);
                pageContext.setAttribute("total", total);
 

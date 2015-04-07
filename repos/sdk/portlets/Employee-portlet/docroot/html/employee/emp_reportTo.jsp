@@ -148,33 +148,31 @@ A.one('#assignedSubordinateAdd').hide();
 	<div class="panel-body">
 		<aui:form name="addSupervisor" id="addSupervisor"
 			action="<%=addSupervisorEmp %>" method="post">
-			<aui:input name="empSupId" value="<%=employeeId %>"
-			type="hidden"></aui:input>
-			<aui:input name="reportFileId" value="<%=fileEntryId %>"
-			type="hidden"></aui:input>
-			<aui:input name="supervisorId" id="supervisorId"
-			type="hidden"></aui:input>
-			<div class="row-fluid">
-				<div class="span8">
-					<aui:input name="report_sup_name" id="report_sup_name" 
-					label="Name" inlineLabel="left" >
-					</aui:input>
+			<div class="form-horizontal">
+				<aui:input name="empSupId" value="<%=employeeId %>"
+				type="hidden"></aui:input>
+				<aui:input name="reportFileId" value="<%=fileEntryId %>"
+				type="hidden"></aui:input>
+				<aui:input name="supervisorId" id="supervisorId"
+				type="hidden"></aui:input>
+				<aui:input name="report_sup_name" id="report_sup_name" 
+				label="Name" inlineLabel="left" >
+				</aui:input>
+				<aui:select name="reporting_sup_method" label="01_reporting-method"
+					inlineLabel="left" showRequiredLabel="false">
+				<aui:option name="Direct" value="Direct">Direct</aui:option>
+				<aui:option name="Indirect" value="Indirect">Indirect</aui:option>
+				<aui:option name="Other" value="Other">Other</aui:option>
+				</aui:select>
+				<div class="control-group">
+					<div class="controls">
+						<aui:button type="submit" cssClass="button btn-primary" value="save"
+							id="submitReportingDetails"></aui:button>
+						<aui:button type="reset" value="Cancel" cssClass="button btn-danger"
+						name="cancelReportTo" id="cancelReportTo"></aui:button>
+					</div>
 				</div>
 			</div>
-			<div class="row-fluid">
-				<div class="span8">
-					<aui:select name="reporting_sup_method" label="01_reporting-method"
-						inlineLabel="left" showRequiredLabel="false">
-						<aui:option name="direct">Direct</aui:option>
-						<aui:option name="direct">Indirect</aui:option>
-						<aui:option name="direct">Other</aui:option>
-					</aui:select>
-				</div>
-			</div>
-			<aui:button type="submit" cssClass="button btn-primary" value="save"
-				id="submitReportingDetails"></aui:button>
-			<aui:button type="reset" value="Cancel" cssClass="button btn-danger"
-			name="cancelReportTo" id="cancelReportTo"></aui:button>
 		</aui:form>
 	</div>
 </div>
@@ -183,53 +181,55 @@ A.one('#assignedSubordinateAdd').hide();
 		<h3><liferay-ui:message key="01_add-subordinate" /></h3>
 	</div>
 	<div class="panel-body">
-		<aui:form name="addSubordinate" id="addSubordinate"
-			action="<%=addSubordinateEmp %>" method="post">
-			<aui:input name="empSubId" value="<%=employeeId %>"
-			type="hidden"></aui:input>
-			<aui:input name="reportFileId" value="<%=fileEntryId %>"
-			type="hidden"></aui:input>
-			<div class="row-fluid">
-				<div class="span8">
-					<aui:input name="report_sub_name" label="01_name" inlineLabel="left"
-						showRequiredLabel="false">
-						<aui:validator name="required"></aui:validator>
-					</aui:input>
+		<aui:form name="addSubordinate" id="addSubordinate" action="<%=addSubordinateEmp %>" method="post">
+			<div class="form-horizontal">
+				<aui:input name="empSubId" value="<%=employeeId %>"
+				type="hidden"></aui:input>
+				<aui:input name="reportFileId" value="<%=fileEntryId %>"
+				type="hidden"></aui:input>
+				<aui:input name="report_sub_name" label="01_name" inlineLabel="left"
+					showRequiredLabel="false">
+				<aui:validator name="required"></aui:validator>
+				</aui:input>
+				<aui:select name="reporting_sub_method" label="01_reporting-method"
+					inlineLabel="left" showRequiredLabel="false">
+				<aui:option name="Direct">Direct</aui:option>
+				<aui:option name="Indirect">Indirect</aui:option>
+				<aui:option name="Other">Other</aui:option>
+				</aui:select>
+				<div class="control-group">
+					<div class="controls">
+					<aui:button type="submit" cssClass="button btn-primary" value="save"
+						id="subReportingDetails"></aui:button>
+					<aui:button type="reset" value="Cancel" cssClass="button btn-danger"
+					name="cancelSubordinate" id="cancelSubordinate"></aui:button>
+					</div>
 				</div>
 			</div>
-			<div class="row-fluid">
-				<div class="span8">
-					<aui:select name="reporting_sub_method" label="01_reporting-method"
-						inlineLabel="left" showRequiredLabel="false">
-						<aui:option name="direct">Direct</aui:option>
-						<aui:option name="direct">Indirect</aui:option>
-						<aui:option name="direct">Other</aui:option>
-					</aui:select>
-				</div>
-			</div>
-			<aui:button type="submit" cssClass="button btn-primary" value="save"
-				id="subReportingDetails"></aui:button>
-			<aui:button type="reset" value="Cancel" cssClass="button btn-danger"
-			name="cancelSubordinate" id="cancelSubordinate"></aui:button>
 		</aui:form>
 	</div>
 </div>
+<liferay-portlet:renderURL  varImpl="reportToURL">
+		<portlet:param name="jsp" value="jsp5"/>
+		<portlet:param name="empId" value="<%=String.valueOf(employeeId) %>" />
+		<portlet:param name="fileId" value="<%=String.valueOf(fileEntryId) %>"/>
+		</liferay-portlet:renderURL>
 <div id="supervisorAddDelete" class="panel">
 	<div class="panel-heading">
 		<h3><liferay-ui:message key="01_assigned-supervisors" /></h3>
 	</div>
 	<div class="panel-body">
-		<aui:button id="supervisorAdd" name="supervisorAdd" value="Add" 
-		cssClass="button btn-primary"></aui:button>
-		<aui:button id="supervisorDelete" value="Delete"
-			name="supervisorDelete" cssClass="button btn-danger" ></aui:button>
+		<div class="control-group">
+			<aui:button id="supervisorAdd" name="supervisorAdd" value="Add" cssClass="button btn-primary"></aui:button>
+			<aui:button id="supervisorDelete" value="Delete" name="supervisorDelete" cssClass="button btn-danger" ></aui:button>
+		</div>
 			<liferay-ui:search-container delta="5"
 			emptyResultsMessage="No records are available for EmpSupervisor"
-			deltaConfigurable="true" rowChecker="<%= new RowChecker(renderResponse) %>">
+			deltaConfigurable="true" rowChecker="<%= new RowChecker(renderResponse) %>" iteratorURL="<%=reportToURL %>">
 			<liferay-ui:search-container-results>
 				<%
 					List<EmpSupervisor> supervisorDetails = empSupervisorDetails;
-							results = supervisorDetails;
+							results = ListUtil.subList(supervisorDetails,searchContainer.getStart(),searchContainer.getEnd());
 							total = supervisorDetails.size();
 							pageContext.setAttribute("results", results);
 							pageContext.setAttribute("total", total);
@@ -251,17 +251,19 @@ A.one('#assignedSubordinateAdd').hide();
 		<h3><liferay-ui:message key="01_assigned-subordinates" /></h3>
 	</div>
 	<div class="panel-body">
-		<aui:button id="subordinateAdd" name="subordinateAdd" value="Add" 
-		cssClass="button btn-primary"></aui:button>
-		<aui:button id="subordinateDelete" value="Delete"
-			name="subordinateDelete" cssClass="button btn-danger"></aui:button>
-			<liferay-ui:search-container delta="5"
+		<div class="control-group">
+			<aui:button id="subordinateAdd" name="subordinateAdd" value="Add" 
+			cssClass="button btn-primary"></aui:button>
+			<aui:button id="subordinateDelete" value="Delete"
+				name="subordinateDelete" cssClass="button btn-danger"></aui:button>
+		</div>
+		<liferay-ui:search-container delta="5"
 			emptyResultsMessage="No records are available for EmpSubordinate"
-			deltaConfigurable="true" rowChecker="<%= new RowChecker(renderResponse) %>">
+			deltaConfigurable="true" rowChecker="<%= new RowChecker(renderResponse) %>" iteratorURL="<%=reportToURL %>">
 			<liferay-ui:search-container-results>
 				<%
 					List<EmpSubordinate> subordinateDetails = empSubordinateDetails;
-							results = subordinateDetails;
+							results =ListUtil.subList( subordinateDetails,searchContainer.getStart(),searchContainer.getEnd());
 							total = subordinateDetails.size();
 							pageContext.setAttribute("results", results);
 							pageContext.setAttribute("total", total);

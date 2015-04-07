@@ -319,13 +319,17 @@ public class LeaveRuleApplicableLocalServiceClpInvoker {
 
 		_methodParameterTypes63 = new String[] { "long", "long[][]" };
 
-		_methodName280 = "getBeanIdentifier";
+		_methodName308 = "getBeanIdentifier";
 
-		_methodParameterTypes280 = new String[] {  };
+		_methodParameterTypes308 = new String[] {  };
 
-		_methodName281 = "setBeanIdentifier";
+		_methodName309 = "setBeanIdentifier";
 
-		_methodParameterTypes281 = new String[] { "java.lang.String" };
+		_methodParameterTypes309 = new String[] { "java.lang.String" };
+
+		_methodName314 = "findByLeaveTypeId";
+
+		_methodParameterTypes314 = new String[] { "long" };
 	}
 
 	public Object invokeMethod(String name, String[] parameterTypes,
@@ -762,16 +766,21 @@ public class LeaveRuleApplicableLocalServiceClpInvoker {
 			return null;
 		}
 
-		if (_methodName280.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes280, parameterTypes)) {
+		if (_methodName308.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes308, parameterTypes)) {
 			return LeaveRuleApplicableLocalServiceUtil.getBeanIdentifier();
 		}
 
-		if (_methodName281.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes281, parameterTypes)) {
+		if (_methodName309.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes309, parameterTypes)) {
 			LeaveRuleApplicableLocalServiceUtil.setBeanIdentifier((java.lang.String)arguments[0]);
 
 			return null;
+		}
+
+		if (_methodName314.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes314, parameterTypes)) {
+			return LeaveRuleApplicableLocalServiceUtil.findByLeaveTypeId(((Long)arguments[0]).longValue());
 		}
 
 		throw new UnsupportedOperationException();
@@ -905,8 +914,10 @@ public class LeaveRuleApplicableLocalServiceClpInvoker {
 	private String[] _methodParameterTypes62;
 	private String _methodName63;
 	private String[] _methodParameterTypes63;
-	private String _methodName280;
-	private String[] _methodParameterTypes280;
-	private String _methodName281;
-	private String[] _methodParameterTypes281;
+	private String _methodName308;
+	private String[] _methodParameterTypes308;
+	private String _methodName309;
+	private String[] _methodParameterTypes309;
+	private String _methodName314;
+	private String[] _methodParameterTypes314;
 }

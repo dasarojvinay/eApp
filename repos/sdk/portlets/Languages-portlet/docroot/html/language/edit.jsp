@@ -5,87 +5,19 @@
 <portlet:renderURL var="listview">
 	<portlet:param name="mvcPath" value="/html/language/add.jsp" />
 </portlet:renderURL>
-<style type="text/css">	
-.table-first-header{
-width: 10%;
-}
-.table-last-header{
-width: 15%;
-}
-</style>
 <aui:script>
-AUI().use(
-  'aui-node',
-  function(A) {
-    var node = A.one('#delete');
-    node.on(
-      'click',
-      function() {
-     var idArray = [];
-      A.all('input[type=checkbox]:checked').each(function(object) {
-      idArray.push(object.get("value"));
-    
-        });
-       if(idArray==""){
-			  alert("Please select records!");
-		  }else{
-			  var d = confirm("Are you sure you want to delete the selected language?");
-		  if(d){
-		   var url = '<%=deleteLanguages%>';
-          A.io.request(url,
-         {
-          data: {  
-                <portlet:namespace />languageIds: idArray,  
-                 },
-          on: {
-               success: function() { 
-                   alert('deleted successfully');
-                   window.location='<%=listview%>';
-              },
-               failure: function() {
-                  
-                 }
-                }
-                 }
-                );
-		  																		
-		  console.log(idArray);
-	  
-      return true;
-  }
-  else
-    return false;
-}             
-      }
-    );
-  }
-);
-</aui:script><aui:script>
-AUI().use(
-  'aui-node',
-  function(A) {
-    var node = A.one('#add');
-    node.on(
-      'click',
-      function() {
-         A.one('#editLanguageAddDelete').hide();
-         A.one('#editLanguageForm').show();
-                     
-      }
-    );
-  }
-);
 
-AUI().ready('event', 'node', function(A){
-
-  A.one('#editLanguageAddDelete').hide();
- 
+ AUI().ready('event', 'node','transition',function(A){
+  A.one('#languageName').focus();
+  setTimeout(function(){
+    A.one('#editLanguageMessage').transition('fadeOut');
+},2000)
  });
 
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#editCancel');
+    var node = A.one('#languagecancel');
     node.on(
       'click',
       function() {
@@ -102,26 +34,34 @@ AUI().use(
 
 </head>
 <body>
-<jsp:useBean id="editLanguage" type="com.rknowsys.eapp.hrm.model.Language" scope="request" />
-<div id="editLanguageAddDelete" class="span12">
-		<a href="#" id="add">Add</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#"
-			id="delete">Delete</a>
-	</div>
-	<div id="editLanguageForm">
-  <aui:form name="myForm" action="<%=updateLanguages.toString()%>">
-		<aui:input name="languageId" type="hidden" id="languageId"  value="<%=editLanguage.getLanguageId()%>"/>
-			 	<div class="span12">
-			<div class="span2">
-				<label>Name</label>
+<% if(SessionMessages.contains(renderRequest.getPortletSession(),"languageName-empty-error")){%>
+<p id="editLanguageMessage" class="alert alert-error"><liferay-ui:message key="Please Enter LanguageName"/></p>
+<%}
+%>
+<% 
+ Language editLanguage = (Language)portletSession.getAttribute("editLanguage");
+%>
+   
+   <div class="row-fluid">
+		<div  id="editLanguageForm">
+			<div class="panel">
+				<div class="panel-heading">
+					<h4>Edit</h4>
+				</div>
+				<div class="panel-body">
+					<aui:form name="myForm" action="<%=updateLanguages.toString()%>" >
+						<aui:input name="languageId" type="hidden" id="languageId" value="<%=editLanguage.getLanguageId()%>"/>
+						<div class="form-inline">
+							<label>Language Name: </label>
+							<input name="<portlet:namespace/>language_name" id="languageName" type="text" value="<%=editLanguage.getLanguageName()%>">
+							<button type="submit" class="btn btn-primary"><i class="icon-ok"></i> Submit</button>
+							<button  type="reset" id ="languagecancel" class="btn btn-danger"><i class="icon-remove"></i> Cancel</button>
+						</div>
+					</aui:form>
+				</div>
+			</div>
 		</div>
-		<div class="span3">		
-		 <input name="<portlet:namespace/>language_name" type="text" required = "required" value="<%=editLanguage.getLanguageName() %>" >
-			</div>
-			</div>
-	<aui:button type="submit" value="Submit"/> <aui:button  type="reset" value="Cancel" id ="editCancel"></aui:button>
-	</aui:form>
 	</div>
-	 <div><label style="color: white" >.</label></div>
 </body>
 <%
 PortletURL iteratorURL = renderResponse.createRenderURL();
@@ -138,6 +78,14 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 } else { 
 	sortByType = portalPrefs.getValue("NAME_SPACE", "sort-by-type ", "asc");   
 }
+long groupId=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery languageDynamicQuery = DynamicQueryFactoryUtil
+.forClass(Language.class,
+		PortletClassLoaderUtil.getClassLoader());
+languageDynamicQuery.add(PropertyFactoryUtil.forName("groupId")
+.eq(groupId));
+List<Language> languageDetails = LanguageLocalServiceUtil
+.dynamicQuery(languageDynamicQuery);
 %>
 <%!
   com.liferay.portal.kernel.dao.search.SearchContainer<Language> searchContainer;
@@ -146,21 +94,22 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 		<liferay-ui:search-container-results>
 				
 		<%
-            List<Language> listOfLanguages = LanguageLocalServiceUtil.getLanguages(searchContainer.getStart(), searchContainer.getEnd());
-            OrderByComparator orderByComparator = CustomComparatorUtil.getLanguagesOrderByComparator(sortByCol, sortByType);         
-  
-           Collections.sort(listOfLanguages,orderByComparator);
-  
-          results = listOfLanguages;
-          
-           
-     
-               total = LanguageLocalServiceUtil.getLanguagesCount();
+		List<Language> languageList = ListUtil.subList(languageDetails, searchContainer.getStart(), searchContainer.getEnd());
+		OrderByComparator orderByComparator =  CustomComparatorUtil.getLanguagesOrderByComparator(sortByCol, sortByType);
+   
+               Collections.sort(languageList,orderByComparator);
+  				if(languageDetails.size()>5){
+  					results = languageList;
+  				}
+  				else{
+               results = languageDetails;
+  				}
+               total = languageDetails.size();
                pageContext.setAttribute("results", results);
                pageContext.setAttribute("total", total);
  %>
 	</liferay-ui:search-container-results>
-	<liferay-ui:search-container-row className="Language" keyProperty="licenseId" modelVar="licenseId"  rowVar="curRow" escapedModel="<%= true %>">
+	<liferay-ui:search-container-row className="Language" keyProperty="languageId" modelVar="languageId"  rowVar="curRow" escapedModel="<%= true %>">
 	     <liferay-ui:search-container-column-text orderable="<%=true %>" name="name" property="languageName" orderableProperty="languageName"/>
 		
 		 <liferay-ui:search-container-column-jsp name="Edit"  path="/html/language/editClick.jsp"/>

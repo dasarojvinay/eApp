@@ -26,6 +26,81 @@
 			<transient name="userUuid" />
 		</attributes>
 	</mapped-superclass>
+	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.DocumentCategoriesModelImpl">
+		<attributes>
+			<id name="documentcategoryId" />
+			<basic name="companyId" />
+			<basic name="groupId" />
+			<basic name="userId" />
+			<basic name="createDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="modifiedDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="documentCategory" />
+			<transient name="modelAttributes" />
+			<transient name="primaryKey" />
+			<transient name="primaryKeyObj" />
+			<transient name="userUuid" />
+		</attributes>
+	</mapped-superclass>
+	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.DocumentsModelImpl">
+		<attributes>
+			<id name="documentId" />
+			<basic name="companyId" />
+			<basic name="groupId" />
+			<basic name="createDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="modifiedDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="userId" />
+			<basic name="topic" />
+			<basic name="category" />
+			<basic name="description" />
+			<basic name="publishDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="status" />
+			<basic name="admin" />
+			<basic name="supervisor" />
+			<basic name="allEmployees" />
+			<basic name="publishedTo" />
+			<transient name="modelAttributes" />
+			<transient name="primaryKey" />
+			<transient name="primaryKeyObj" />
+			<transient name="userUuid" />
+		</attributes>
+	</mapped-superclass>
+	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.DocumentsAttachmentsModelImpl">
+		<attributes>
+			<id name="documentAttachmentId" />
+			<basic name="companyId" />
+			<basic name="groupId" />
+			<basic name="createDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="modifiedDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="userId" />
+			<basic name="attachmentTypeId" />
+			<basic name="documentId" />
+			<basic name="description" />
+			<basic name="uuid">
+				<column name="UUID_" />
+			</basic>
+			<basic name="fileName" />
+			<basic name="fileSize" />
+			<basic name="fileType" />
+			<transient name="modelAttributes" />
+			<transient name="primaryKey" />
+			<transient name="primaryKeyObj" />
+			<transient name="userUuid" />
+		</attributes>
+	</mapped-superclass>
 	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.EducationModelImpl">
 		<attributes>
 			<id name="educationId" />
@@ -59,10 +134,14 @@
 				<temporal>TIMESTAMP</temporal>
 			</basic>
 			<basic name="attachmentTypeId" />
+			<basic name="uuid">
+				<column name="UUID_" />
+			</basic>
+			<basic name="relatedTo" />
+			<basic name="userName" />
 			<basic name="fileName" />
 			<basic name="fileSize" />
 			<basic name="fileType" />
-			<basic name="file" />
 			<basic name="comment">
 				<column name="COMMENT_" />
 			</basic>
@@ -135,6 +214,7 @@
 			<basic name="employeeNo" />
 			<basic name="companyId" />
 			<basic name="userId" />
+			<basic name="groupId" />
 			<basic name="createDate">
 				<temporal>TIMESTAMP</temporal>
 			</basic>
@@ -296,13 +376,13 @@
 			</basic>
 			<basic name="shiftId" />
 			<basic name="comments" />
+			<basic name="isCurrentJob" />
 			<basic name="employmentContractStartDate">
 				<temporal>TIMESTAMP</temporal>
 			</basic>
 			<basic name="employmentContractEndDate">
 				<temporal>TIMESTAMP</temporal>
 			</basic>
-			<basic name="contractDetails" />
 			<transient name="modelAttributes" />
 			<transient name="primaryKey" />
 			<transient name="primaryKeyObj" />
@@ -712,6 +792,32 @@
 			<transient name="userUuid" />
 		</attributes>
 	</mapped-superclass>
+	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.LeaveAccrualModelImpl">
+		<attributes>
+			<id name="leaveAccrualId" />
+			<basic name="companyId" />
+			<basic name="groupId" />
+			<basic name="createDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="modifiedDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="userId" />
+			<basic name="leaveTypeId" />
+			<basic name="accrualFrequency" />
+			<basic name="accrueEvery" />
+			<basic name="dayOfCredit" />
+			<basic name="accrualStartsOn" />
+			<basic name="monthOfCredit" />
+			<basic name="accrualValidFrom" />
+			<basic name="firstAccrual" />
+			<transient name="modelAttributes" />
+			<transient name="primaryKey" />
+			<transient name="primaryKeyObj" />
+			<transient name="userUuid" />
+		</attributes>
+	</mapped-superclass>
 	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.LeaveCarryForwardPolicyModelImpl">
 		<attributes>
 			<id name="leaveCarryForwardPolicyId" />
@@ -727,8 +833,41 @@
 			<basic name="leaveTypeId" />
 			<basic name="expiryDuration" />
 			<basic name="expiryDurationUOM" />
-			<basic name="isMaxCarryForwardLimitApplicable" />
 			<basic name="maxCarryForwardLimit" />
+			<basic name="isMaxCarryForwardLimitApplicable" />
+			<basic name="isNegetiveValueCarryForwardble" />
+			<basic name="specifiedAmountToCarryForward" />
+			<transient name="modelAttributes" />
+			<transient name="primaryKey" />
+			<transient name="primaryKeyObj" />
+			<transient name="userUuid" />
+		</attributes>
+	</mapped-superclass>
+	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.LeaveGeneralModelImpl">
+		<attributes>
+			<id name="leaveGeneralId" />
+			<basic name="companyId" />
+			<basic name="groupId" />
+			<basic name="createDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="modifiedDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="userId" />
+			<basic name="leaveTypeId" />
+			<basic name="leavePeriodTypeId" />
+			<basic name="startMonth" />
+			<basic name="startDayOfMonth" />
+			<basic name="duration" />
+			<basic name="ifEmployeesCanApply" />
+			<basic name="ifAdminCanAssign" />
+			<basic name="ifAdminCanManageEntitlements" />
+			<basic name="ifLeaveAccruable" />
+			<basic name="ifCarryForwardable" />
+			<basic name="showProjectBalance" />
+			<basic name="enableAttachment" />
+			<basic name="isAttachmentMandatory" />
 			<transient name="modelAttributes" />
 			<transient name="primaryKey" />
 			<transient name="primaryKeyObj" />
@@ -770,25 +909,27 @@
 			<basic name="userId" />
 			<basic name="leaveTypeId" />
 			<basic name="cannotExceedBalance" />
+			<basic name="cantExceedBalForRoleIds" />
 			<basic name="cannotApplyForPartialDay" />
-			<basic name="ifATermsQuestion" />
+			<basic name="cantApplyPartialDayForRoleIds" />
 			<basic name="termsQuestion" />
+			<basic name="termsQsnForRoleIds" />
 			<basic name="errorTextIfTermsDeclined" />
-			<basic name="isMinimumServicePeriodApplicable" />
 			<basic name="minimumServicePeriod" />
-			<basic name="isMaxConsecutiveLeavesApplicable" />
+			<basic name="minServicePeriodForRoleIds" />
 			<basic name="maxConsecutiveLeaves" />
-			<basic name="isSmallChildCriterionApplicable" />
+			<basic name="maxConsecLeavesForRoleIds" />
 			<basic name="maxSmallChildAgeApplicable" />
+			<basic name="maxSmallChildAgeForRoleIds" />
 			<transient name="modelAttributes" />
 			<transient name="primaryKey" />
 			<transient name="primaryKeyObj" />
 			<transient name="userUuid" />
 		</attributes>
 	</mapped-superclass>
-	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.LeaveRuleModelImpl">
+	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.LeaveRuleApplicableModelImpl">
 		<attributes>
-			<id name="leaveRuleId" />
+			<id name="leaveRuleApplicableId" />
 			<basic name="companyId" />
 			<basic name="groupId" />
 			<basic name="createDate">
@@ -799,15 +940,15 @@
 			</basic>
 			<basic name="userId" />
 			<basic name="leaveTypeId" />
-			<basic name="leavePeriodTypeId" />
-			<basic name="startMonth" />
-			<basic name="startDayOfMonth" />
-			<basic name="duration" />
-			<basic name="ifEmployeesCanApply" />
-			<basic name="ifAdminCanAssign" />
-			<basic name="ifAdminCanManageEntitlements" />
-			<basic name="ifLeaveAccruable" />
-			<basic name="ifCarryForwardable" />
+			<basic name="forFemale" />
+			<basic name="forMale" />
+			<basic name="forYearsOfService" />
+			<basic name="fromYears" />
+			<basic name="toYears" />
+			<basic name="forJobTitles" />
+			<basic name="forJobCategories" />
+			<basic name="forEmploymentStatus" />
+			<basic name="forGender" />
 			<transient name="modelAttributes" />
 			<transient name="primaryKey" />
 			<transient name="primaryKeyObj" />
@@ -835,9 +976,9 @@
 			<transient name="userUuid" />
 		</attributes>
 	</mapped-superclass>
-	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.LeaveTypeApplicabilityModelImpl">
+	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.LeaveTypeEmployeeGroupsModelImpl">
 		<attributes>
-			<id name="leaveTypeApplicabilityId" />
+			<id name="leaveTypeEmployeeGroupId" />
 			<basic name="companyId" />
 			<basic name="groupId" />
 			<basic name="createDate">
@@ -848,9 +989,16 @@
 			</basic>
 			<basic name="userId" />
 			<basic name="leaveTypeId" />
-			<basic name="ifYearsOfServiceCriterionApplicable" />
-			<basic name="minYearsOfService" />
-			<basic name="maxYearsOfService" />
+			<basic name="groupName" />
+			<basic name="forJobTitles" />
+			<basic name="forJobCategories" />
+			<basic name="forEmploymentStatus" />
+			<basic name="forGender" />
+			<basic name="forFemale" />
+			<basic name="forMale" />
+			<basic name="forYearsOfService" />
+			<basic name="fromYears" />
+			<basic name="toYears" />
 			<transient name="modelAttributes" />
 			<transient name="primaryKey" />
 			<transient name="primaryKeyObj" />
@@ -958,10 +1106,41 @@
 			<basic name="userId" />
 			<basic name="topic" />
 			<basic name="description" />
-			<basic name="publishTo" />
 			<basic name="publishDate">
 				<temporal>TIMESTAMP</temporal>
 			</basic>
+			<basic name="status" />
+			<basic name="admin" />
+			<basic name="supervisor" />
+			<basic name="allEmployees" />
+			<basic name="publishedTo" />
+			<transient name="modelAttributes" />
+			<transient name="primaryKey" />
+			<transient name="primaryKeyObj" />
+			<transient name="userUuid" />
+		</attributes>
+	</mapped-superclass>
+	<mapped-superclass class="com.rknowsys.eapp.hrm.model.impl.NewsAttachmentsModelImpl">
+		<attributes>
+			<id name="newsAttachmentId" />
+			<basic name="companyId" />
+			<basic name="groupId" />
+			<basic name="createDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="modifiedDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="userId" />
+			<basic name="attachmentTypeId" />
+			<basic name="newsId" />
+			<basic name="description" />
+			<basic name="uuid">
+				<column name="UUID_" />
+			</basic>
+			<basic name="fileName" />
+			<basic name="fileSize" />
+			<basic name="fileType" />
 			<transient name="modelAttributes" />
 			<transient name="primaryKey" />
 			<transient name="primaryKeyObj" />
@@ -1080,7 +1259,8 @@
 			<basic name="type">
 				<column name="TYPE_" />
 			</basic>
-			<basic name="onlyCTC" />
+			<basic name="totalPayable" />
+			<basic name="costToCompany" />
 			<basic name="valueType" />
 			<transient name="modelAttributes" />
 			<transient name="primaryKey" />
@@ -1203,6 +1383,18 @@
 		<table name="doc_category" />
 		<attributes />
 	</entity>
+	<entity class="com.rknowsys.eapp.hrm.model.impl.DocumentCategoriesImpl" name="DocumentCategories">
+		<table name="document_categories" />
+		<attributes />
+	</entity>
+	<entity class="com.rknowsys.eapp.hrm.model.impl.DocumentsImpl" name="Documents">
+		<table name="documents" />
+		<attributes />
+	</entity>
+	<entity class="com.rknowsys.eapp.hrm.model.impl.DocumentsAttachmentsImpl" name="DocumentsAttachments">
+		<table name="documents_attachments" />
+		<attributes />
+	</entity>
 	<entity class="com.rknowsys.eapp.hrm.model.impl.EducationImpl" name="Education">
 		<table name="education" />
 		<attributes />
@@ -1311,8 +1503,16 @@
 		<table name="language" />
 		<attributes />
 	</entity>
+	<entity class="com.rknowsys.eapp.hrm.model.impl.LeaveAccrualImpl" name="LeaveAccrual">
+		<table name="leave_accrual" />
+		<attributes />
+	</entity>
 	<entity class="com.rknowsys.eapp.hrm.model.impl.LeaveCarryForwardPolicyImpl" name="LeaveCarryForwardPolicy">
 		<table name="leave_carry_forward_policy" />
+		<attributes />
+	</entity>
+	<entity class="com.rknowsys.eapp.hrm.model.impl.LeaveGeneralImpl" name="LeaveGeneral">
+		<table name="leave_general" />
 		<attributes />
 	</entity>
 	<entity class="com.rknowsys.eapp.hrm.model.impl.LeavePeriodImpl" name="LeavePeriod">
@@ -1323,16 +1523,16 @@
 		<table name="leave_restriction" />
 		<attributes />
 	</entity>
-	<entity class="com.rknowsys.eapp.hrm.model.impl.LeaveRuleImpl" name="LeaveRule">
-		<table name="leave_rule" />
+	<entity class="com.rknowsys.eapp.hrm.model.impl.LeaveRuleApplicableImpl" name="LeaveRuleApplicable">
+		<table name="leave_rule_applicable" />
 		<attributes />
 	</entity>
 	<entity class="com.rknowsys.eapp.hrm.model.impl.LeaveTypeImpl" name="LeaveType">
 		<table name="leave_type" />
 		<attributes />
 	</entity>
-	<entity class="com.rknowsys.eapp.hrm.model.impl.LeaveTypeApplicabilityImpl" name="LeaveTypeApplicability">
-		<table name="leave_type_applicability" />
+	<entity class="com.rknowsys.eapp.hrm.model.impl.LeaveTypeEmployeeGroupsImpl" name="LeaveTypeEmployeeGroups">
+		<table name="leave_type_employee_groups" />
 		<attributes />
 	</entity>
 	<entity class="com.rknowsys.eapp.hrm.model.impl.LicenseImpl" name="License">
@@ -1353,6 +1553,10 @@
 	</entity>
 	<entity class="com.rknowsys.eapp.hrm.model.impl.NewsImpl" name="News">
 		<table name="news" />
+		<attributes />
+	</entity>
+	<entity class="com.rknowsys.eapp.hrm.model.impl.NewsAttachmentsImpl" name="NewsAttachments">
+		<table name="news_attachments" />
 		<attributes />
 	</entity>
 	<entity class="com.rknowsys.eapp.hrm.model.impl.OrganizationImpl" name="Organization">

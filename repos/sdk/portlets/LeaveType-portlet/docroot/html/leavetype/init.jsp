@@ -13,6 +13,8 @@
 <%@page import="com.liferay.portal.kernel.util.ParamUtil"%>
 <%@page import="com.liferay.portal.kernel.util.WebKeys"%>
 <%@page import="com.liferay.portal.kernel.dao.search.ResultRow"%>
+<%@page import="com.liferay.portal.model.Role"%>
+<%@page import="com.liferay.portal.service.RoleLocalServiceUtil"%>
 
 <!-- imported classes from java library -->
 <%@page import="java.util.List" %>
@@ -27,5 +29,7 @@
 <%@page import="com.rknowsys.eapp.hrm.model.Nationality" %>
 <%@page import="com.rknowsys.eapp.hrm.service.NationalityLocalServiceUtil" %>
 <%@page import="com.rknowsys.eapp.hrm.model.LeaveGeneral"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page import="com.rknowsys.eapp.hrm.model.LeaveRestriction"%>
 <portlet:defineObjects/>
 <theme:defineObjects/>

@@ -6,31 +6,23 @@
 <portlet:renderURL var="listview">
 	<portlet:param name="mvcPath" value="/html/language/add.jsp" />
 </portlet:renderURL>
-<style type="text/css">
-.table-first-header {
-	width: 10%;
-}
-.table-last-header {
-	width: 15%;
-}
-</style>
 <aui:script>
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#delete');
+    var node = A.one('#languagedelete');
     node.on(
       'click',
       function() {
      var idArray = [];
-      A.all('input[type=checkbox]:checked').each(function(object) {
+    A.all('input[name=<portlet:namespace/>rowIds]:checked').each(function(object) {
       idArray.push(object.get("value"));
-    alert(idArray.length);
+   
         });
        if(idArray==""){
 			  alert("Please select records!");
 		  }else{
-			  var d = confirm("Are you sure you want to delete the selected language ?");
+			  var d = confirm("Are you sure you want to delete the selected languages ?");
 		  if(d){
 		   var url = '<%=deleteLanguages%>';
           A.io.request(url,
@@ -66,27 +58,32 @@ AUI().use(
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#add');
+    var node = A.one('#languageadd');
     node.on(
       'click',
       function() {
          A.one('#languageAddDelete').hide();
          A.one('#addLanguageForm').show();
+         A.one('#languageName').focus();
                      
       }
     );
   }
 );
 
- AUI().ready('event', 'node', function(A){
-
+ AUI().ready('event', 'node','transition',function(A){
   A.one('#addLanguageForm').hide();
+  setTimeout(function(){
+    A.one('#addLanguageMessage').transition('fadeOut');
+     A.one('#addLanguageMessage').hide();
+},2000)
  });
+
 
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#cancel');
+    var node = A.one('#languagecancel');
     node.on(
       'click',
       function() {
@@ -99,34 +96,42 @@ AUI().use(
 );
 
 </aui:script>
-</head>
+<% if(SessionMessages.contains(renderRequest.getPortletSession(),"languageName-empty-error")){%>
+<p id="addLanguageMessage" class="alert alert-error"><liferay-ui:message key="Please Enter LanguageName"/></p>
+<%} 
+ if(SessionMessages.contains(renderRequest.getPortletSession(),"languageName-duplicate-error")){
+%>
+<p id="addLanguageMessage" class="alert alert-error"><liferay-ui:message key="LanguageName already Exits"/></p>
+<%} 
+%>
 
-<body>
-	<div id="languageAddDelete" class="span12">
-		<a href="#" id="add">Add</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" id="delete">Delete</a>
-
-	</div>
-	<div  id="addLanguageForm">
-	<aui:form name="myForm" action="<%=saveLanguages.toString()%>" >
-		<aui:input name="languageId" type="hidden" id="languageId" />
-	
-		<div class="span12">
-			<div class="span2">
-				<label>Name</label>
-		</div>
-		<div class="span3">		
-		 <input name="<portlet:namespace/>language_name" type="text" required = "required">
+  <div class="row-fluid">
+		<div id="languageAddDelete" class="span12 text-right">
+			<div class="control-group">
+				<a href="#" class="btn btn-primary" id="languageadd"><i class="icon-plus"></i> Add</a>
+				<a href="#" class="btn btn-danger" id="languagedelete"><i class="icon-trash"></i> Delete</a>
 			</div>
 		</div>
-		<aui:button type="submit" value="Submit" />
-		<aui:button  type="reset" value="Cancel" id ="cancel"/>
-		
-	</aui:form>
+		<div  id="addLanguageForm">
+			<div class="panel">
+				<div class="panel-heading">
+					<h4>Add</h4>
+				</div>
+				<div class="panel-body">
+					<aui:form name="myForm" action="<%=saveLanguages.toString()%>" >
+						<aui:input name="languageId" type="hidden" id="languageId" />
+						<div class="form-inline">
+							<label>Language Name: </label>
+							<input name="<portlet:namespace/>language_name" id="languageName" type="text">
+							<button type="submit" class="btn btn-primary"><i class="icon-ok"></i> Submit</button>
+							<button  type="reset" id ="languagecancel" class="btn btn-danger"><i class="icon-remove"></i> Cancel</button>
+						</div>
+					</aui:form>
+				</div>
+			</div>
+		</div>
 	</div>
-	
-	 <div><label style="color: white" >.</label></div>
-	
-</body>
+
 
 <%
 
@@ -149,7 +154,13 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	
 	sortByType = portalPrefs.getValue("NAME_SPACE", "sort-by-type ", "asc");   
 }
-
+long groupId=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery languageDynamicQuery = DynamicQueryFactoryUtil
+.forClass(Language.class,
+		PortletClassLoaderUtil.getClassLoader());
+languageDynamicQuery.add(PropertyFactoryUtil.forName("groupId")
+.eq(groupId));
+List<Language> languageDetails = LanguageLocalServiceUtil.dynamicQuery(languageDynamicQuery);
 %>
 <%!
   com.liferay.portal.kernel.dao.search.SearchContainer<Language> searchContainer;
@@ -163,13 +174,17 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 	<liferay-ui:search-container-results>
 
 		<%
-            List<Language> languageList = LanguageLocalServiceUtil.getLanguages(searchContainer.getStart(), searchContainer.getEnd());
+            List<Language> languageList = ListUtil.subList(languageDetails, searchContainer.getStart(), searchContainer.getEnd());
 		OrderByComparator orderByComparator =  CustomComparatorUtil.getLanguagesOrderByComparator(sortByCol, sortByType);
    
                Collections.sort(languageList,orderByComparator);
-  
-               results = languageList;
-               total = LanguageLocalServiceUtil.getLanguagesCount();
+  				if(languageDetails.size()>5){
+  					results = languageList;
+  				}
+  				else{
+               results = languageDetails;
+  				}
+               total = languageDetails.size();
                pageContext.setAttribute("results", results);
                pageContext.setAttribute("total", total);
 
@@ -177,7 +192,7 @@ portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol);
 
 	</liferay-ui:search-container-results>
 	<liferay-ui:search-container-row className="Language"
-		keyProperty="licenseId" modelVar="licenseId" rowVar="curRow"
+		keyProperty="languageId" modelVar="languageId" rowVar="curRow"
 		escapedModel="<%= true %>">
 		<liferay-ui:search-container-column-text orderable="<%=true %>"
 			name="name" property="languageName"

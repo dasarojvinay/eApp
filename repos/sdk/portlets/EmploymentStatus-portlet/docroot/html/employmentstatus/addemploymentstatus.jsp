@@ -1,32 +1,23 @@
+<%@page import="org.apache.log4j.Logger"%>
 <%@ include file="/html/employmentstatus/init.jsp"%>
-<html>
-<head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>employmentstatus</title>
+<title>AddEmploymentstatus</title>
 <portlet:actionURL var="saveemploymentstatus" name="saveEmploymentStatus">
 </portlet:actionURL>
 <portlet:resourceURL var="deleteemploymentstatus" id="deleteEmploymentStatus"/>
 <portlet:renderURL var="listview">
 	<portlet:param name="mvcPath" value="/html/employmentstatus/addemploymentstatus.jsp" />
 </portlet:renderURL>
-<style type="text/css">
-.table-first-header {
-	width: 10%;
-}
-.table-last-header {
-	width: 15%;
-}
-</style>
 <aui:script>
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#delete');
+    var node = A.one('#deleteemploymentstatus');
     node.on(
       'click',
       function() {
      var idArray = [];
-      A.all('input[type=checkbox]:checked').each(function(object) {
+     A.all('input[name=<portlet:namespace/>rowIds]:checked').each(function(object) {
       idArray.push(object.get("value"));
     
         });
@@ -69,27 +60,31 @@ AUI().use(
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#add');
+    var node = A.one('#addemploymentstatus');
     node.on(
       'click',
       function() {
          A.one('#employmentstatusadddelete').hide();
          A.one('#addEmploymentstatusForm').show();
+         A.one('#employmentstatus').focus();
                      
       }
     );
   }
 );
 
- AUI().ready('event', 'node', function(A){
-
+  AUI().ready('event', 'node','transition',function(A){
   A.one('#addEmploymentstatusForm').hide();
+  setTimeout(function(){
+    A.one('#addEmploymentStatusMessage').transition('fadeOut');
+    A.one('#addEmploymentStatusMessage').hide();
+},2000)
  });
 
 AUI().use(
   'aui-node',
   function(A) {
-    var node = A.one('#cancel');
+    var node = A.one('#cancelemploymentstatus');
     node.on(
       'click',
       function() {
@@ -102,34 +97,38 @@ AUI().use(
 );
 
 </aui:script>
-</head>
+<% Logger log=Logger.getLogger(this.getClass().getName());%>
+<% if(SessionMessages.contains(renderRequest.getPortletSession(),"employmentStatus-empty-error")){%>
+<p id="addEmploymentStatusMessage" class="alert alert-error"><liferay-ui:message key="Please Enter EmploymentStatus"/></p>
+<%} 
+ if(SessionMessages.contains(renderRequest.getPortletSession(),"employmentStatus-duplicate-error")){
+%>
+<p id="addEmploymentStatusMessage" class="alert alert-error"><liferay-ui:message key="EmploymentStatus already Exits"/></p>
+<%} 
+%>
 
-<body>
-	<div id="employmentstatusadddelete" class="span12">
-		<a href="#" id="add">Add</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" id="delete">Delete</a>
-
-	</div>
-	<div  id="addEmploymentstatusForm">
-	<aui:form name="myForm" action="<%=saveemploymentstatus.toString()%>">
-		<aui:input name="employmentstatusId" type="hidden" id="employmentstatusId" />
-		<div class="span12">
-			<div class="span2">
-				<label>Employment Status</label>
+		<div id="employmentstatusadddelete" class="control-group text-right">
+			<a href="#" class="btn btn-primary" id="addemploymentstatus"><i class="icon-plus"></i> Add</a>
+			<a href="#" class="btn btn-danger" id="deleteemploymentstatus"><i class="icon-trash"></i> Delete</a>
 		</div>
-		<div class="span3">		
-		 <input name="<portlet:namespace/>employmentstatus" id="employmentstatus" type="text" required = "required">
+		<div  id="addEmploymentstatusForm" class="panel">
+			<div class="panel-heading">
+				<h4>Add</h4>
+			</div>
+			<div class="panel-body">
+				<aui:form name="myemploymentstatusForm" action="<%=saveemploymentstatus.toString()%>" >
+					<aui:input name="employmentstatusId" type="hidden" id="employmentstatusId" />
+					<div class="form-inline">
+						<label>Employment Status: </label>
+						<input name="<portlet:namespace/>employmentstatus" id="employmentstatus" type="text">
+						<button type="submit" class="btn btn-primary"><i class="icon-ok"></i> Submit</button>
+						<button  type="reset" id ="cancelemploymentstatus" class="btn btn-danger"><i class="icon-remove"></i> Cancel</button>
+					</div>
+				</aui:form>
 			</div>
 		</div>
-		
-		<aui:button type="submit" value="Submit" />
-		<aui:button  type="reset" value="Cancel" id ="cancel"/>
-		
-	</aui:form>
-	</div>
-	
-	 <div><label style="color: white" >.</label></div>
-	
-</body>
+
+
 
 <%
 
@@ -140,23 +139,30 @@ RowChecker rowChecker = new RowChecker(renderResponse);
 PortalPreferences portalPrefs = PortletPreferencesFactoryUtil.getPortalPreferences(request); 
 String sortByCol = ParamUtil.getString(request, "orderByCol"); 
 String sortByType = ParamUtil.getString(request, "orderByType"); 
-System.out.println("sortByCol == " +sortByCol);
-System.out.println("sortByType == " +sortByType);
+log.info("sortByCol == " +sortByCol);
+log.info("sortByType == " +sortByType);
 if (Validator.isNotNull(sortByCol ) && Validator.isNotNull(sortByType )) { 
-	System.out.println("if block...");
+	log.info("if block...");
  
 portalPrefs.setValue("NAME_SPACE", "sort-by-col", sortByCol); 
 portalPrefs.setValue("NAME_SPACE", "sort-by-type", sortByCol); 
  
 } else { 
  
-	
 	sortByType = portalPrefs.getValue("NAME_SPACE", "sort-by-type ", "asc");   
 }
 
-System.out.println("after....");
-System.out.println("sortByCol == " +sortByCol);
-System.out.println("sortByType == " +sortByType);
+log.info("after....");
+log.info("sortByCol == " +sortByCol);
+log.info("sortByType == " +sortByType);
+long groupId=themeDisplay.getLayout().getGroup().getGroupId();
+DynamicQuery empStatusDynamicQuery = DynamicQueryFactoryUtil
+.forClass(EmploymentStatus.class,
+		PortletClassLoaderUtil.getClassLoader());
+empStatusDynamicQuery.add(PropertyFactoryUtil.forName("groupId")
+.eq(groupId));
+List<EmploymentStatus> empDetails = EmploymentStatusLocalServiceUtil
+.dynamicQuery(empStatusDynamicQuery);
 
 %>
 <%!
@@ -166,24 +172,25 @@ System.out.println("sortByType == " +sortByType);
 <liferay-ui:search-container orderByCol="<%=sortByCol %>"
 	orderByType="<%=sortByType %>"
 	rowChecker="<%= new RowChecker(renderResponse) %>" delta="5"
-	emptyResultsMessage="No records is available for Employment Statuses."
+	emptyResultsMessage="No records is available for Employment Status."
 	deltaConfigurable="true" iteratorURL="<%=iteratorURL%>">
 	<liferay-ui:search-container-results>
 
 		<% 
 		 System.out.println("addemployee jsp =========");
-            List<EmploymentStatus> employmentstatusList = EmploymentStatusLocalServiceUtil.getEmploymentStatuses(searchContainer.getStart(), searchContainer.getEnd());
-            System.out.println("list size == " +employmentstatusList.size());
+            List<EmploymentStatus> employmentstatusList =ListUtil.subList(empDetails, searchContainer.getStart(), searchContainer.getEnd());
             OrderByComparator orderByComparator = CustomComparatorUtil.getEmploymentStatusrOrderByComparator(sortByCol, sortByType);         
   
            Collections.sort(employmentstatusList,orderByComparator);
-  
+  			if(empDetails.size()>5)
+  			{
           results = employmentstatusList;
-          
-            System.out.println("results == " +results);
-           
-     
-               total = EmploymentStatusLocalServiceUtil.getEmploymentStatusesCount();
+  			}
+  			else{
+  				results = empDetails;
+  			}
+          log.info("results == " +results);
+               total = empDetails.size();
                System.out.println("total == " +total);
                pageContext.setAttribute("results", results);
                pageContext.setAttribute("total", total);
@@ -191,7 +198,7 @@ System.out.println("sortByType == " +sortByType);
 
 	</liferay-ui:search-container-results>
 	<liferay-ui:search-container-row className="EmploymentStatus"
-		keyProperty="employmentStatusId" modelVar="employmentstatus" rowVar="curRow"
+		keyProperty="employmentStatusId" modelVar="EmploymentStatus" rowVar="curRow"
 		escapedModel="<%= true %>">
 		<liferay-ui:search-container-column-text orderable="<%=true %>"
 			name="Employment Status" property="employmentstatus"
@@ -204,5 +211,3 @@ System.out.println("sortByType == " +sortByType);
 
 </liferay-ui:search-container>
 </div>
-
-</html>

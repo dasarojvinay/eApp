@@ -19,6 +19,9 @@ import com.liferay.portal.kernel.messaging.Message;
 
 import com.rknowsys.eapp.hrm.service.ClpSerializer;
 import com.rknowsys.eapp.hrm.service.DocCategoryLocalServiceUtil;
+import com.rknowsys.eapp.hrm.service.DocumentCategoriesLocalServiceUtil;
+import com.rknowsys.eapp.hrm.service.DocumentsAttachmentsLocalServiceUtil;
+import com.rknowsys.eapp.hrm.service.DocumentsLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.EducationLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.EmpAttachmentLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.EmpContactDetailsLocalServiceUtil;
@@ -46,16 +49,19 @@ import com.rknowsys.eapp.hrm.service.InterviewLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.JobCategoryLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.JobTitleLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.LanguageLocalServiceUtil;
+import com.rknowsys.eapp.hrm.service.LeaveAccrualLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.LeaveCarryForwardPolicyLocalServiceUtil;
+import com.rknowsys.eapp.hrm.service.LeaveGeneralLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.LeavePeriodLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.LeaveRestrictionLocalServiceUtil;
-import com.rknowsys.eapp.hrm.service.LeaveRuleLocalServiceUtil;
-import com.rknowsys.eapp.hrm.service.LeaveTypeApplicabilityLocalServiceUtil;
+import com.rknowsys.eapp.hrm.service.LeaveRuleApplicableLocalServiceUtil;
+import com.rknowsys.eapp.hrm.service.LeaveTypeEmployeeGroupsLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.LeaveTypeLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.LicenseLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.LocationLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.MembershipLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.NationalityLocalServiceUtil;
+import com.rknowsys.eapp.hrm.service.NewsAttachmentsLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.NewsLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.OrganizationLocalServiceUtil;
 import com.rknowsys.eapp.hrm.service.PayGradeCurrencyLocalServiceUtil;
@@ -84,6 +90,12 @@ public class ClpMessageListener extends BaseMessageListener {
 		if (command.equals("undeploy") &&
 				servletContextName.equals(getServletContextName())) {
 			DocCategoryLocalServiceUtil.clearService();
+
+			DocumentCategoriesLocalServiceUtil.clearService();
+
+			DocumentsLocalServiceUtil.clearService();
+
+			DocumentsAttachmentsLocalServiceUtil.clearService();
 
 			EducationLocalServiceUtil.clearService();
 
@@ -139,17 +151,21 @@ public class ClpMessageListener extends BaseMessageListener {
 
 			LanguageLocalServiceUtil.clearService();
 
+			LeaveAccrualLocalServiceUtil.clearService();
+
 			LeaveCarryForwardPolicyLocalServiceUtil.clearService();
+
+			LeaveGeneralLocalServiceUtil.clearService();
 
 			LeavePeriodLocalServiceUtil.clearService();
 
 			LeaveRestrictionLocalServiceUtil.clearService();
 
-			LeaveRuleLocalServiceUtil.clearService();
+			LeaveRuleApplicableLocalServiceUtil.clearService();
 
 			LeaveTypeLocalServiceUtil.clearService();
 
-			LeaveTypeApplicabilityLocalServiceUtil.clearService();
+			LeaveTypeEmployeeGroupsLocalServiceUtil.clearService();
 
 			LicenseLocalServiceUtil.clearService();
 
@@ -160,6 +176,8 @@ public class ClpMessageListener extends BaseMessageListener {
 			NationalityLocalServiceUtil.clearService();
 
 			NewsLocalServiceUtil.clearService();
+
+			NewsAttachmentsLocalServiceUtil.clearService();
 
 			OrganizationLocalServiceUtil.clearService();
 

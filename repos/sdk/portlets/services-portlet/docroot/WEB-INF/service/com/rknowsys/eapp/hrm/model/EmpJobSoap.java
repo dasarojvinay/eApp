@@ -16,8 +16,6 @@ package com.rknowsys.eapp.hrm.model;
 
 import java.io.Serializable;
 
-import java.sql.Blob;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,9 +48,9 @@ public class EmpJobSoap implements Serializable {
 		soapModel.setEffectiveDate(model.getEffectiveDate());
 		soapModel.setShiftId(model.getShiftId());
 		soapModel.setComments(model.getComments());
+		soapModel.setIsCurrentJob(model.getIsCurrentJob());
 		soapModel.setEmploymentContractStartDate(model.getEmploymentContractStartDate());
 		soapModel.setEmploymentContractEndDate(model.getEmploymentContractEndDate());
-		soapModel.setContractDetails(model.getContractDetails());
 
 		return soapModel;
 	}
@@ -249,6 +247,18 @@ public class EmpJobSoap implements Serializable {
 		_comments = comments;
 	}
 
+	public boolean getIsCurrentJob() {
+		return _isCurrentJob;
+	}
+
+	public boolean isIsCurrentJob() {
+		return _isCurrentJob;
+	}
+
+	public void setIsCurrentJob(boolean isCurrentJob) {
+		_isCurrentJob = isCurrentJob;
+	}
+
 	public Date getEmploymentContractStartDate() {
 		return _employmentContractStartDate;
 	}
@@ -263,14 +273,6 @@ public class EmpJobSoap implements Serializable {
 
 	public void setEmploymentContractEndDate(Date employmentContractEndDate) {
 		_employmentContractEndDate = employmentContractEndDate;
-	}
-
-	public Blob getContractDetails() {
-		return _contractDetails;
-	}
-
-	public void setContractDetails(Blob contractDetails) {
-		_contractDetails = contractDetails;
 	}
 
 	private long _empJobId;
@@ -291,7 +293,7 @@ public class EmpJobSoap implements Serializable {
 	private Date _effectiveDate;
 	private long _shiftId;
 	private String _comments;
+	private boolean _isCurrentJob;
 	private Date _employmentContractStartDate;
 	private Date _employmentContractEndDate;
-	private Blob _contractDetails;
 }

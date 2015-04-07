@@ -53,6 +53,7 @@ public class EmpDetailsWrapper implements EmpDetails, ModelWrapper<EmpDetails> {
 		attributes.put("employeeNo", getEmployeeNo());
 		attributes.put("companyId", getCompanyId());
 		attributes.put("userId", getUserId());
+		attributes.put("groupId", getGroupId());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("firstName", getFirstName());
@@ -89,6 +90,12 @@ public class EmpDetailsWrapper implements EmpDetails, ModelWrapper<EmpDetails> {
 
 		if (userId != null) {
 			setUserId(userId);
+		}
+
+		Long groupId = (Long)attributes.get("groupId");
+
+		if (groupId != null) {
+			setGroupId(groupId);
 		}
 
 		Date createDate = (Date)attributes.get("createDate");
@@ -133,7 +140,7 @@ public class EmpDetailsWrapper implements EmpDetails, ModelWrapper<EmpDetails> {
 			setName(name);
 		}
 
-		String supervisor = (String)attributes.get("supervisor");
+		Long supervisor = (Long)attributes.get("supervisor");
 
 		if (supervisor != null) {
 			setSupervisor(supervisor);
@@ -260,6 +267,26 @@ public class EmpDetailsWrapper implements EmpDetails, ModelWrapper<EmpDetails> {
 	@Override
 	public void setUserUuid(java.lang.String userUuid) {
 		_empDetails.setUserUuid(userUuid);
+	}
+
+	/**
+	* Returns the group ID of this emp details.
+	*
+	* @return the group ID of this emp details
+	*/
+	@Override
+	public long getGroupId() {
+		return _empDetails.getGroupId();
+	}
+
+	/**
+	* Sets the group ID of this emp details.
+	*
+	* @param groupId the group ID of this emp details
+	*/
+	@Override
+	public void setGroupId(long groupId) {
+		_empDetails.setGroupId(groupId);
 	}
 
 	/**
@@ -408,7 +435,7 @@ public class EmpDetailsWrapper implements EmpDetails, ModelWrapper<EmpDetails> {
 	* @return the supervisor of this emp details
 	*/
 	@Override
-	public java.lang.String getSupervisor() {
+	public long getSupervisor() {
 		return _empDetails.getSupervisor();
 	}
 
@@ -418,7 +445,7 @@ public class EmpDetailsWrapper implements EmpDetails, ModelWrapper<EmpDetails> {
 	* @param supervisor the supervisor of this emp details
 	*/
 	@Override
-	public void setSupervisor(java.lang.String supervisor) {
+	public void setSupervisor(long supervisor) {
 		_empDetails.setSupervisor(supervisor);
 	}
 

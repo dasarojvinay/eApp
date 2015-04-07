@@ -21,6 +21,7 @@
 <%@page import="com.rknowsys.eapp.hrm.service.EmpSupervisorLocalServiceUtil"%>
 <%@page import="com.rknowsys.eapp.hrm.model.EmpSupervisor"%>
 <%@page import="java.util.Date"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@page
 	import="com.rknowsys.eapp.hrm.service.MembershipLocalServiceUtil"%>
 <%@page import="com.rknowsys.eapp.hrm.model.Membership"%>
@@ -97,4 +98,19 @@
 <%@page import="com.rknowsys.eapp.hrm.model.EmpWorkExp"%>
 <%@page import="com.rknowsys.eapp.hrm.service.EducationLocalServiceUtil"%>
 <%@page import="com.rknowsys.eapp.hrm.model.Education"%>
+<%@page import="com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil"%>
+<%@page import="com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil"%>
+<%@page import="com.liferay.portlet.expando.model.ExpandoTableConstants"%>
+<%@page import="com.liferay.portlet.expando.service.ExpandoValueLocalServiceUtil"%>
+<%@page import="com.liferay.portlet.expando.model.ExpandoValue"%>
+<%@page import="com.liferay.portal.service.ClassNameLocalServiceUtil"%>
+<%@page import="com.liferay.portlet.documentlibrary.model.DLFileEntry"%>
+<%@page import="com.liferay.portal.service.RegionServiceUtil"%>
+<%@page import="com.liferay.portal.model.Region"%>
+<%@page
+	import="com.liferay.portlet.documentlibrary.service.DLAppService"%>
+	<%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
+	<%@ taglib uri="http://liferay.com/tld/theme" prefix="theme" %>
 <portlet:defineObjects />
+<theme:defineObjects/>
+
